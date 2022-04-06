@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "bmpcodec": "cpp",
+        "typedefs": "cpp"
+    }
+}
