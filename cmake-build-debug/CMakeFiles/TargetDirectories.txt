@@ -1,0 +1,3 @@
+/home/bric/文档/CLionProjects/pyECCP/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/bric/文档/CLionProjects/pyECCP/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/bric/文档/CLionProjects/pyECCP/cmake-build-debug/CMakeFiles/pyECCP_test.dir

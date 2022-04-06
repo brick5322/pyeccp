@@ -1,0 +1,13 @@
+# ninja log v5
+0	11	1649233105206626081	CMakeFiles/pyECCP_test.dir/src/main.c.o	54ae09e7d3cdcb06
+38	51	1649233155549965649	pyECCP_test	4f540f548b6b184d
+1	23	1649233105218625923	CMakeFiles/pyECCP_test.dir/test/test2_Camera.c.o	2ad150392d2f20b1
+0	23	1649233105222625872	CMakeFiles/pyECCP_test.dir/src/BMPcodec.c.o	89f540bb2c6ce60c
+1	8	1649233105206626081	CMakeFiles/pyECCP_test.dir/src/PyECCP_Module.c.o	4cf672f3db8ee464
+0	19	1649233105218625923	CMakeFiles/pyECCP_test.dir/src/camera_info.c.o	706bfbc73c4746cc
+1	14	1649233105210626028	CMakeFiles/pyECCP_test.dir/src/stream.c.o	cda39b8091e82cff
+1	38	1649233155537965807	CMakeFiles/pyECCP_test.dir/src/PyCameraObject.c.o	7903e358e737ba72
+1	21	1649233388618838138	CMakeFiles/pyECCP_test.dir/src/Camera.c.o	55fb618441e364a0
+1	24	1649233388622838083	CMakeFiles/pyECCP_test.dir/test/test2_Camera.c.o	2ad150392d2f20b1
+1	48	1649233388646837756	CMakeFiles/pyECCP_test.dir/src/PyCameraObject.c.o	7903e358e737ba72
+48	59	1649233388658837593	pyECCP_test	4191f3d48a3be765
