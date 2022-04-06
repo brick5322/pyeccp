@@ -1,17 +1,9 @@
 #include "Camera.h"
 #include <stdio.h>
 
-unsigned int file_to_mem(stream *stm, unsigned int size)
-{
-    FILE *fp = stm->handle_object;
-    unsigned int len = fread(stm->handler_subject, size, 1, fp);
-    *(int *)&stm->handler_subject += len * size;
-    return len * size;
-}
-
 unsigned int mem_to_file(stream *stm, unsigned int size)
 {
-    FILE *fp = stm->handle_object;
+    FILE *fp = stm->handler_object;
     unsigned int len = fwrite(stm->handler_subject, size, 1, fp);
     *(int *)&stm->handler_subject += len * size;
     return len * size;
@@ -27,7 +19,7 @@ int Camera_save_picture(clock_t time, Camera_info *info, const char *data)
         return -1;
 
     stream *fstm = stream_alloc(0, mem_to_file, NULL);
-    fstm->handle_object = fp;
+    fstm->handler_object = fp;
 
     info->codec.stm = fstm;
 

@@ -5,6 +5,10 @@
 #include <linux/limits.h>
 #include <libCodec/BMPcodec.h>
 
+/**
+ * @class Camera_info
+ * @brief 存储相机信息的结构体
+ */
 typedef struct Camera_info
 {
     char filepath[PATH_MAX];
