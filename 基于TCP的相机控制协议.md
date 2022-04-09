@@ -43,10 +43,10 @@
 
 ## 协议的格式
 
-6字节+动态容量（完整的报文至多8192字节）
+3字节+动态容量（完整的报文至多8192字节）
 
-2字节：报文功能码
-4字节：报文长度
+1字节：报文功能码
+2字节：报文长度
 动态：报文内容
 
 ## 服务端和客户端的API设计
@@ -86,6 +86,8 @@ typedef struct PyCameraObject
 {
     PyObject_HEAD
 	camera_info info;
+    sockaddr_in addr;
+    EventList event;
 }PyCameraObject
     
 //PyListObject List
@@ -110,24 +112,24 @@ PyObject* listenCamera(PyModuleObject* module,PyObject** args);
 ```C
 typedef struct ECCP_message
 {
-	short func_code;
-	unsigned int length;
-	char* data;
+    short func_code;
+    unsigned int length;
+    char* data;
 }ECCP_message;
 
-typedef void (*FUNC_Code)(const char*,camera_info*);
+typedef void (*FUNC_Code)(const char*,Camera_info*);
 FUNC_Code ECCP_func_Code[6];
 
 ECCP_message* ECCP_message_alloc();
 void ECCP_message_realloc(ECCP_message*);
 void ECCP_message_free(ECCP_message*);
-void ECCP_message_exec(ECCP_message*,camera_info*);
+void ECCP_message_exec(ECCP_message*,Camera_info*);
 ```
 
 #### -3、（C层面）相机信息结构体
 
 ```C
-typedef struct camera_info
+typedef struct Camera_info
 {
 	char filepath[256];
 	char ID[32];//这个需要设计成为定长 COMPANY-yyyy-mm-dd-hh-mm-ss-8B_number-防伪标识位（模运算）
@@ -136,5 +138,5 @@ typedef struct camera_info
     //其他的生成bmp的基本信息
 } camera_info
     
-int Camera_save_picture(camera_info* camera,clock_t time,const char* data);
+int Camera_save_picture(Camera_info* camera,clock_t time,const char* data);
 ```
