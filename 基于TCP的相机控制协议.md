@@ -19,19 +19,50 @@
 
 `0x1`：心跳包
 主机：发送时间
-从机：设定时间，返回原时间、设定后时间、相机基本信息
+从机：设定时间，返回设定后时间、相机基本信息
 
-`0x1`：获取相机详细数据
+主机发送的信息格式：
+
+| 时间     |
+| -------- |
+| clock_t  |
+| unix时间 |
+
+从机返回的信息格式：
+
+| 照片号   | 相机ID  |
+| -------- | ------- |
+| clock_t  | 32*char |
+| unix时间 | 出厂ID  |
+
+`0x2`：获取相机详细数据
 主机：无数据
 从机：相机详细数据
+
+| 时间     |
+| -------- |
+| clock_t  |
+| unix时间 |
 
 `0x3`：照相
 主机：无数据
 从机：拍照，发送24位RGB数据
 
+从机返回的信息格式：
+
+| 照片号             | 数据包标号     | 数据长       | 数据块   |
+| ------------------ | -------------- | ------------ | -------- |
+| clock_t            | unsigned short | short        | string   |
+| 第一个包的发送时间 | 从0开始        | 至多8192字节 | BGR/ABGR |
+
 `0x4`：开启从机定时发送
 主机：发送定时器时间
 从机：无数据响应，开始按定时器时间间隔拍照返回
+
+| 时间间隔 |
+| -------- |
+| int      |
+| 单位：秒 |
 
 `0x5`：从机定时传输数据
 主机：非法
@@ -85,7 +116,7 @@ def listenCamera(IP_address: str, port: int, maxnb: int, callback) -> None: ...
 typedef struct PyCameraObject
 {
     PyObject_HEAD
-	camera_info info;
+	Camera_info info;
     sockaddr_in addr;
     EventList event;
 }PyCameraObject
