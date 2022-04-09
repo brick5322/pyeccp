@@ -4,6 +4,7 @@
 
 #include <libCodec/BMPcodec.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 extern unsigned int mem_to_file(stream *stm, unsigned int size);
 
