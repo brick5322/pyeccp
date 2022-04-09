@@ -41,19 +41,27 @@ void BMPInfoHeader_default_set(BMPInfoHeader *pIHeader)
 	pIHeader->importantColors = 0;
 }
 
-unsigned int BMPcodec_resize(BMPcodec *pcodec, unsigned int width, int height, BitCount bitCount)
-{
-	if (!width && !height)
-		return pcodec->info_header.dataSz;
-	if (width)
-		pcodec->info_header.width = width;
-	if (height)
-		pcodec->info_header.height = height;
-	pcodec->info_header.bitCount = bitCount;
-	pcodec->info_header.dataSz = ((long long)width * height) * pcodec->info_header.bitCount / 8;
-	pcodec->f_header.fileSz = pcodec->info_header.dataSz + pcodec->info_header.bitInfoHeadersz + 14;
-	return pcodec->info_header.dataSz;
+unsigned int BMPcodec_resize(BMPcodec *pcodec, unsigned int width, int height, BitCount bitCount) {
+    if (!width && !height)
+        return pcodec->info_header.dataSz;
+    if (width)
+        pcodec->info_header.width = width;
+    if (height)
+        pcodec->info_header.height = height;
+    pcodec->info_header.bitCount = bitCount;
+    int bytecount = bitCount / 8;
+
+    unsigned int w = ((pcodec->info_header.width * bytecount - 1) / 4 + 1) * 4;
+
+    pcodec->info_header.dataSz = w * pcodec->info_header.height;
+    pcodec->f_header.fileSz = pcodec->info_header.dataSz + pcodec->info_header.bitInfoHeadersz + 14;
+    return pcodec->info_header.dataSz;
 }
+
+unsigned char *BMPcodec_buffer_alloc(BMPcodec *pcodec) {
+    return malloc(pcodec->info_header.dataSz);
+}
+
 
 BMPcodec *BMPcodec_alloc(stream *stm)
 {
@@ -110,3 +118,4 @@ void BMPcodec_free(BMPcodec *pcodec)
 {
 	free(pcodec);
 }
+

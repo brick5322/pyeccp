@@ -142,6 +142,14 @@ unsigned int BMPcodec_readAll(BMPcodec* pcodec);
 unsigned int BMPcodec_resize(BMPcodec* pcodec, unsigned int width, int height, BitCount bitCount);
 
 /**
+ * @brief 基于pcodec的参数申请一块适合大小的内存
+ * @details 这里考虑到了行的4字节对齐
+ * @param pcodec
+ * @return
+ */
+unsigned char* BMPcodec_buffer_alloc(BMPcodec* pcodec);
+
+/**
  * @brief 从流读取文件头
  * @param pcodec 一个带有流的解码器实例
  * @return 流读取的返回值
