@@ -16,13 +16,14 @@ int test1_BMPcodec()
     stream* fstm = stream_alloc(0,mem_to_file,NULL);
     fstm->handler_object = fp;
     BMPcodec* pcodec = BMPcodec_alloc(fstm);
-    BMPcodec_resize(pcodec,256,256,_24Bits);
-    color* buffer = (color*)BMPcodec_buffer_alloc(pcodec);
+    BMPcodec_resize(pcodec,510,510,_24Bits);
+    unsigned char* buffer =BMPcodec_buffer_alloc(pcodec);
     for(int i = 0;i<pcodec->info_header.width;i++)
         for (int j = 0; j < pcodec->info_header.height; j++) {
-            buffer[i*256+j].r = i;
-            buffer[i*256+j].g = j;
-            buffer[i*256+j].b = (511-i-j)/2;
+            color* currentPos = &buffer[BMPcodec_getpos(pcodec,i,j)];
+            currentPos->r = i/2;
+            currentPos->g = j/2;
+            currentPos->b = 0;
         }
     BMPcodec_setHeader(pcodec);
     fstm->handler_subject = buffer;

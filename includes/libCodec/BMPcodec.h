@@ -150,6 +150,15 @@ unsigned int BMPcodec_resize(BMPcodec* pcodec, unsigned int width, int height, B
 unsigned char* BMPcodec_buffer_alloc(BMPcodec* pcodec);
 
 /**
+ * @brief 获取像素点偏移量
+ * @param pcodec 一个解码器实例
+ * @param row 当前像素点行位置
+ * @param column 当前像素点列位置
+ * @return 像素点偏移量(单位：Byte)
+ */
+unsigned int BMPcodec_getpos(BMPcodec *pcodec,unsigned int row,int column);
+
+/**
  * @brief 从流读取文件头
  * @param pcodec 一个带有流的解码器实例
  * @return 流读取的返回值

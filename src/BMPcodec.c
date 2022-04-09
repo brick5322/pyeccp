@@ -62,7 +62,6 @@ unsigned char *BMPcodec_buffer_alloc(BMPcodec *pcodec) {
     return malloc(pcodec->info_header.dataSz);
 }
 
-
 BMPcodec *BMPcodec_alloc(stream *stm)
 {
 	BMPcodec *ret = malloc(sizeof(BMPcodec));
@@ -72,6 +71,11 @@ BMPcodec *BMPcodec_alloc(stream *stm)
 	BMPFileHeader_default_set(&ret->f_header);
 	BMPInfoHeader_default_set(&ret->info_header);
 	return ret;
+}
+
+unsigned int BMPcodec_getpos(BMPcodec *pcodec,unsigned int row,int column) {
+    unsigned int w = ((pcodec->info_header.width * pcodec->info_header.bitCount / 8 - 1) / 4 + 1)*4 ;
+    return row*w+column*pcodec->info_header.bitCount / 8;
 }
 
 unsigned int BMPcodec_write(BMPcodec *pcodec, unsigned int sz)
