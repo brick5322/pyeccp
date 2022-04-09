@@ -107,26 +107,45 @@ void CameraTCPservise(PyCameraObject*);
 PyObject* listenCamera(PyModuleObject* module,PyObject** args);
 ```
 
-#### -2、（C层面）协议解析
+#### -2、（C层面）功能码函数
+
+这一层旨在实现服务器端解析功能码后要执行的函数，具体函数的名称无实际意义，但格式上要遵循：
+
+```C
+//data为后续的数据
+//length为数据长度
+//camera为对应的相机
+int func(const char* data,unsigned short length,Camera_info* camera)
+{
+	if(success)
+        return 0;
+    else
+        return some_other_number;
+}
+```
+
+
+
+#### -3、（C层面）协议解析
 
 ```C
 typedef struct ECCP_message
 {
-    short func_code;
-    unsigned int length;
+    char func_code;
+    unsigned short length;
     char* data;
 }ECCP_message;
 
-typedef void (*FUNC_Code)(const char*,Camera_info*);
-FUNC_Code ECCP_func_Code[6];
+typedef int (*ECCP_func)(const char* data,unsigned short length,Camera_info* camera);
 
 ECCP_message* ECCP_message_alloc();
 void ECCP_message_realloc(ECCP_message*);
 void ECCP_message_free(ECCP_message*);
 void ECCP_message_exec(ECCP_message*,Camera_info*);
+void vec_ECCP_FUNC(unsigned char func_code,ECCP_func* func);
 ```
 
-#### -3、（C层面）相机信息结构体
+#### -4、（C层面）相机信息结构体
 
 ```C
 typedef struct Camera_info
