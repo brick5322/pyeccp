@@ -6,40 +6,29 @@
 #define PYECCP_ECCP_H
 #include <Camera.h>
 
-
+#define ECCP_buffersz (8196)
 /**
  * @class ECCP_message
  * @brief ECCP协议报文结构体
+ * @details 应当将这个结构体套用在某块内存上，所以并不会提供ECCP_message_alloc()这样的函数
  */
 typedef struct ECCP_message
 {
+    const char reserved;
     char func_code;
     unsigned short length;
-    char* data;
+    char data[];
 }ECCP_message;
 
 typedef int (*ECCP_func)(const char* data,unsigned short length,Camera_info* camera);
 
 /**
- * @brief 构造ECCP报文结构体
- * @param msg 截获的底层报文内容
- * @return 构造的报文实例
- */
-ECCP_message* ECCP_message_alloc(const char* msg);
-
-/**
- * @brief 从新的底层报文中重构结构体
- * @param Emsg 要重构的结构体
- * @param msg 截获的底层报文内容
+ * @brief 检验报文合法性
+ * @param Emsg 要检验的报文内容
+ * @param length 报文实际长度（即UDP包长）
  * @return 成功返回0
  */
-int ECCP_message_realloc(ECCP_message* Emsg,const char* msg);
-
-/**
- * @brief 释放结构体
- * @param Emsg 要释放的结构体
- */
-void ECCP_message_free(ECCP_message* Emsg);
+int ECCP_is_Invalid(ECCP_message* Emsg,int length);
 
 /**
  * @brief 执行报文内容

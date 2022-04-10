@@ -15,6 +15,27 @@
 
 也就是说上位机发送的一定要收到回复，下位机发送的不需要回复。
 
+每次通讯的行为模式可以简化成：
+
+```mermaid
+stateDiagram
+	[*]-->上位机前置行为
+	上位机前置行为-->上位机按格式生成协议
+	上位机按格式生成协议-->网络
+	网络-->下位机
+	下位机-->[*]
+	[*]-->下位机收到协议
+	下位机收到协议-->下位机前置行为
+	下位机前置行为-->下位机按格式生成协议
+	下位机按格式生成协议-->网络
+	网络-->上位机
+	上位机-->上位机后置行为
+	上位机后置行为-->[*]
+
+```
+
+<div align = "center">图1-1：通讯行为模式图</div>
+
 ## 报文功能码
 
 `0x0`:相机接入
@@ -126,7 +147,7 @@
 
 ```Python
 #module name: eccp
-class Camera_info:
+class Camera:
     pic_list = []
     
     def get_ID(self) -> str: ...
@@ -141,10 +162,10 @@ class Camera_info:
 
     def finishPicStream(self) -> None: ...
 
-listen_list = []
-#这里保存Camera列表，listenCamera会轮询这个列表中的Camera元素以接收并存储照片
-def listenCamera(IP_address: str, port: int, maxnb: int, callback) -> None: ...
-#这里的callback用作接入后的操作，形如def func(var:Camera_info) -> None
+listen_dict = {}
+#这里保存Camera列表，exec会轮询这个列表中的Camera元素以接收并存储照片
+def exec(IP_address: str, port: int, maxnb: int, callback) -> None: ...
+#这里的callback用作接入后的操作，形如def func(var:Camera) -> None
 ```
 
 #### -1、（CPython API层面）设计
@@ -154,11 +175,10 @@ typedef struct PyCameraObject
 {
     PyObject_HEAD
 	Camera_info info;
-    sockaddr_in addr;
     EventList event;
 }PyCameraObject
     
-//PyListObject List
+PyDictObject listen_dict;//k:v long long（sockaddr_in）/PyCameraObject
 
 //PyCamera_Type 内封装的函数
 PyObject* wrong_alloc(); //通过报异常来封掉构造、形成工厂模式
@@ -170,14 +190,32 @@ PyObject* getPic(PyCameraObject*);
 PyObject* startPicStream(PyCameraObject*,PyObject**args);
 PyObject* finishPicStream(PyCameraObject*);
 
-void CameraTCPservise(PyCameraObject*);
 //会调用List轮询各socket
-PyObject* listenCamera(PyModuleObject* module,PyObject** args);
+PyObject* exec(PyModuleObject* module,PyObject** args);
 ```
+
+在`exec`函数中应当具有这样的循环：
+
+```mermaid
+graph TB;
+	start-->if1{定时器};
+	if1--触发-->心跳包[/轮询字典依次发送心跳包/];
+	心跳包-->获取IP[/轮询字典获取IP:Port和Camera/];
+	if1--不触发---->获取IP;
+	获取IP --> recv非阻塞;
+	recv非阻塞-->获取报文;
+	获取报文--Yes-->ECCP_is_Invalid;
+	ECCP_is_Invalid-->ECCP_message_exec;
+	获取报文--No-->从Camera_EventList发送数据包;
+	ECCP_message_exec-->从Camera_EventList发送数据包;
+	从Camera_EventList发送数据包-->start;
+```
+
+
 
 #### -2、（C层面）功能码函数
 
-这一层旨在实现服务器端解析功能码后要执行的函数，具体函数的名称无实际意义，但格式上要遵循：
+这一层旨在实现服务器端解析功能码后要执行的函数，也即处在 图1-1 **上位机后置行为**中，具体函数的名称无实际意义，但格式上要遵循：
 
 ```C
 //data为后续的数据
@@ -199,16 +237,15 @@ int func(const char* data,unsigned short length,Camera_info* camera)
 ```C
 typedef struct ECCP_message
 {
+    const char reserved;
     char func_code;
     unsigned short length;
-    char* data;
+    char data[];
 }ECCP_message;
 
 typedef int (*ECCP_func)(const char* data,unsigned short length,Camera_info* camera);
 
-ECCP_message* ECCP_message_alloc();
-void ECCP_message_realloc(ECCP_message*);
-void ECCP_message_free(ECCP_message*);
+int ECCP_is_Invalid(ECCP_message* Emsg,int length);
 void ECCP_message_exec(ECCP_message*,Camera_info*);
 void vec_ECCP_FUNC(unsigned char func_code,ECCP_func* func);
 ```

@@ -2,47 +2,16 @@
 // Created by bric on 2022/4/9.
 //
 
-#include <stdlib.h>
-#include <string.h>
 #include "ECCP.h"
 
 
-
-ECCP_message *ECCP_message_alloc(const char *msg) {
-    ECCP_message *ret = malloc(sizeof(ECCP_message));
-    if(!ret)
-        goto err;
-    ret->func_code = *msg;
-    ret->length = *(unsigned short *) (msg + 1);
-    if (ret->length) {
-        ret->data = malloc(ret->length);
-        if (!ret->data)
-            goto err;
-    } else
-        ret->data = NULL;
-    memcpy(ret->data, msg + 3, ret->length);
-    return ret;
-err:
-    free(ret);
-    return NULL;
-}
-
-int ECCP_message_realloc(ECCP_message *Emsg, const char *msg) {
-    unsigned short length = *(unsigned short *) (msg + 1);
-    char* data = malloc(length);
-    if(!data)
-        return -1;
-    free(Emsg->data);
-    Emsg->length = length;
-    Emsg->func_code = *msg;
-    Emsg->data = data;
-    memcpy(data, msg + 3, length);
+int ECCP_is_Invalid(ECCP_message* Emsg,int length)
+{
+    if(length>=ECCP_buffersz)
+        return 7;//E2BIG
+    else if(Emsg->length!=length-3)
+        return 107;//EBFONT
     return 0;
-}
-
-void ECCP_message_free(ECCP_message *Emsg) {
-    free(Emsg->data);
-    free(Emsg);
 }
 
 int ECCP_message_exec(ECCP_message *Emsg, Camera_info *camera) {
