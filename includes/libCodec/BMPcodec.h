@@ -163,17 +163,24 @@ unsigned int BMPcodec_getpos(BMPcodec *pcodec,unsigned int row,int column);
  * @param pcodec 一个带有流的解码器实例
  * @return 流读取的返回值
  */
-int BMPcodec_getHeader(BMPcodec* pcodec);
+int BMPcodec_readHeader(BMPcodec* pcodec);
 
 /**
  * @brief 将文件头写入到流
  * @param pcodec 一个带有流的解码器实例
  * @return 流写入的返回值
  */
-int BMPcodec_setHeader(BMPcodec* pcodec);
+int BMPcodec_writeHeader(BMPcodec* pcodec);
 
 /**
  * @brief 释放pcodec，这里不会释放流
  * @param pcodec 要释放的解码器
  */
 void BMPcodec_free(BMPcodec* pcodec);
+
+/**
+ * @brief 用一种颜色填充整个图像
+ * @param pcodec 解码器
+ * @param c
+ */
+void BMPcodec_fill(BMPcodec *pcodec ,color32 c);
