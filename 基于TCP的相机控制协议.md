@@ -38,7 +38,7 @@ stateDiagram
 
 ## 报文功能码
 
-`0x0`:相机接入
+#### `0x0`：相机接入
 
 主机：非法
 从机：向服务器发送接入请求
@@ -52,9 +52,10 @@ stateDiagram
 
 主机的行为：
 
-记录接入的时间，同时开始以`主机心跳包发送间隔==一个时间间隔`发送心跳包
+记录接入的时间构造相机结构体并返回相机
 
-`0x1`：心跳包
+#### `0x1`：心跳包
+
 主机：发送时间
 从机：返回设定后时间
 
@@ -80,7 +81,8 @@ stateDiagram
 
 收到心跳包（或任何的包）后，更新相机的生存时间
 
-`0x2`：获取相机详细数据
+#### `0x2`：获取相机详细数据
+
 主机：无数据
 从机：相机详细数据
 
@@ -95,7 +97,10 @@ stateDiagram
 | unsigned int | int        |
 | 照片的宽度   | 照片的高度 |
 
-`0x3`：照相
+主机的行为：设置返回的信息
+
+#### `0x3`：照相
+
 主机：无数据
 从机：拍照，发送24位RGB数据
 
@@ -110,7 +115,8 @@ stateDiagram
 | clock_t            | unsigned short | short                   | string |
 | 第一个包的发送时间 | 从0开始        | 至多**<u>8192</u>**字节 | BGR    |
 
-`0x4`：开启从机定时发送
+#### `0x4`：开启从机定时发送
+
 主机：发送定时器时间
 从机：无数据响应，开始按定时器时间间隔拍照返回
 
@@ -122,11 +128,13 @@ stateDiagram
 | int      |
 | 单位：秒 |
 
-`0x5`：从机定时传输数据
+#### `0x5`：从机定时传输数据
+
 主机：非法
 从机：拍照，发送24位RGB数据
 
-`0x6`：结束从机定时发送
+#### `0x6`：结束从机定时发送
+
 主机：无数据
 从机：无数据
 
@@ -199,13 +207,15 @@ PyObject* exec(PyModuleObject* module,PyObject** args);
 ```mermaid
 graph TB;
 	start-->if1{定时器};
-	if1--触发-->心跳包[/轮询字典依次发送心跳包/];
-	心跳包-->获取IP[/轮询字典获取IP:Port和Camera/];
-	if1--不触发---->获取IP;
-	获取IP --> recv非阻塞;
+	if1--触发-->心跳包[/轮询字典删除超时相机并依次发送心跳包/];
+	心跳包-->recv非阻塞;
+	if1--不触发---->recv非阻塞;
 	recv非阻塞-->获取报文;
 	获取报文--Yes-->ECCP_is_Invalid;
-	ECCP_is_Invalid-->ECCP_message_exec;
+	ECCP_is_Invalid-->0x1{0x1构造报文};
+	0x1--no-->ECCP_message_exec;
+	0x1--yes-->构造PyCameraObject;
+	构造PyCameraObject-->ECCP_message_exec;
 	获取报文--No-->从Camera_EventList发送数据包;
 	ECCP_message_exec-->从Camera_EventList发送数据包;
 	从Camera_EventList发送数据包-->start;
@@ -255,10 +265,10 @@ void vec_ECCP_FUNC(unsigned char func_code,ECCP_func* func);
 ```C
 typedef struct Camera_info
 {
-	char filepath[256];
-	char ID[32];//这个需要设计成为定长 COMPANY-yyyy-mm-dd-hh-mm-ss-8B_number-防伪标识位（模运算）
-	int width;
-	int height;
+    char filepath[PATH_MAX];
+    char staticID[32];
+    BMPcodec codec;
+    clock_t TTL;
 } camera_info
     
 int Camera_save_picture(Camera_info* camera,clock_t time,const char* data);

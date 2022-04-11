@@ -9,6 +9,15 @@
  */
 
 #include <Camera.h>
+#define PKT_BLOCK_SIZE (8192)
+
+typedef struct camera_data
+{
+    clock_t time;
+    unsigned short pkt_cnt;
+    short pkt_size;
+    char pkt_data[];
+}camera_data;
 
 int func0_login(const char* data,unsigned short length,Camera_info* camera);
 
@@ -20,7 +29,7 @@ int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
 
 int func4_start_timer(const char* data,unsigned short length,Camera_info* camera);
 
-int func5_heartbeat(const char* data,unsigned short length,Camera_info* camera);
+int func5_take_photo(const char* data,unsigned short length,Camera_info* camera);
 
 int func6_stop_timer(const char* data,unsigned short length,Camera_info* camera);
 

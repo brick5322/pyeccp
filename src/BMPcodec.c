@@ -98,7 +98,7 @@ unsigned int BMPcodec_readAll(BMPcodec *pcodec)
     return pcodec->stm->read(pcodec->stm, pcodec->info_header.width * pcodec->info_header.height * pcodec->info_header.bitCount / 8);
 }
 
-int BMPcodec_getHeader(BMPcodec *pcodec)
+int BMPcodec_readHeader(BMPcodec *pcodec)
 {
 	pcodec->stm->handler_subject = &pcodec->f_header.identifier;
 	pcodec->stm->read(pcodec->stm, 14);
@@ -110,7 +110,7 @@ int BMPcodec_getHeader(BMPcodec *pcodec)
 	return 0;
 }
 
-int BMPcodec_setHeader(BMPcodec *pcodec)
+int BMPcodec_writeHeader(BMPcodec *pcodec)
 {
 	pcodec->stm->handler_subject = &pcodec->f_header.identifier;
 	pcodec->stm->write(pcodec->stm, 14);
@@ -123,3 +123,55 @@ void BMPcodec_free(BMPcodec *pcodec)
 	free(pcodec);
 }
 
+void BMPcodec_fill(BMPcodec *pcodec,color32 c) {
+    size_t size = pcodec->info_header.dataSz / pcodec->info_header.height;
+    unsigned char *buffer = malloc(size);
+    switch (pcodec->info_header.bitCount) {
+        case _8Bits:
+            for (int i = 0; i < size; i++)
+                buffer[i] = c.b;
+            break;
+        case _16Bits:
+            for (int i = 0; i < size; i++)
+                    buffer[i] = i%2?c.a:c.b;
+
+            break;
+        case _24Bits:
+            for (int i = 0; i < size; i++)
+                switch (i%3) {
+                case 0:
+                    buffer[i] = c.b;
+                    break;
+                case 1:
+                    buffer[i] = c.g;
+                    break;
+                case 2:
+                    buffer[i] = c.r;
+                    break;
+                }
+            break;
+        case _32Bits:
+            for (int i = 0; i < size; i++)
+                switch (i%3) {
+                    case 0:
+                        buffer[i] = c.b;
+                        break;
+                    case 1:
+                        buffer[i] = c.g;
+                        break;
+                    case 2:
+                        buffer[i] = c.r;
+                        break;
+                    case 3:
+                        buffer[i] = c.a;
+                        break;
+                }
+        default:
+            break;
+    };
+    for (int i = 0; i < pcodec->info_header.height; i++) {
+        pcodec->stm->handler_subject = buffer;
+        BMPcodec_write(pcodec, size);
+    }
+    free(buffer);
+}

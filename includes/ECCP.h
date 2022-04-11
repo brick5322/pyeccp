@@ -6,7 +6,7 @@
 #define PYECCP_ECCP_H
 #include <Camera.h>
 
-#define ECCP_buffersz (8196)
+#define ECCP_buffersz (8208)
 /**
  * @class ECCP_message
  * @brief ECCP协议报文结构体
