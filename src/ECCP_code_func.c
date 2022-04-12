@@ -20,10 +20,6 @@ int func1_heartbeat(const char* data,unsigned short length,Camera_info* camera) 
 }
 
 int func2_camera_detail(const char* data,unsigned short length,Camera_info* camera) {
-    if(!camera->infoLock)
-        return ERR_CONNECTION_LOCKED;
-    camera->infoLock--;
-
     BMPcodec_resize(&camera->codec,((unsigned int *) data)[0], ((int *) data)[1],_24Bits);
     camera->TTL = time(0) + CAMERA_LIVE_SEC;
     return 0;
@@ -32,15 +28,11 @@ int func2_camera_detail(const char* data,unsigned short length,Camera_info* came
 int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
 {
     static char filename[PATH_MAX];
-    if(!camera->infoLock)
-        return ERR_CONNECTION_LOCKED;
-    camera->infoLock--;
     camera_data* cameraData = (camera_data *) data;
     sprintf(filename,"%s/%ld.bmp",camera->filepath,cameraData->time);
     FILE* fp;
     if(!cameraData->pkt_cnt)
     {
-        camera->infoLock++;
         fp = fopen(filename,"wb+");
         if(!fp)
             return ERR_FILE_CANNOT_OPEN;
@@ -61,36 +53,22 @@ int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
     BMPcodec_write(&camera->codec,cameraData->pkt_size);
     fclose(fp);
     camera->TTL = time(0) + CAMERA_LIVE_SEC;
-    if(cameraData->pkt_size-PKT_BLOCK_SIZE)
-        camera->infoLock--;
     return 0;
 }
 
 int func4_start_timer(const char* data,unsigned short length,Camera_info* camera)
 {
-    if(!camera->infoLock)
-        return ERR_CONNECTION_LOCKED;
-    camera->infoLock--;
     camera->TTL = time(0) + CAMERA_LIVE_SEC;
-    camera->infoLock++;
     return 0;
 }
 
 int func5_take_photo(const char* data,unsigned short length,Camera_info* camera)
 {
-    if(!camera->infoLock)
-        return ERR_CONNECTION_LOCKED;
-    camera->infoLock--;
-    camera->infoLock++;
     return func3_take_photo(data,length,camera);
 }
 
 int func6_stop_timer(const char* data,unsigned short length,Camera_info* camera)
 {
-    if(!camera->infoLock)
-        return ERR_CONNECTION_LOCKED;
-    camera->infoLock--;
     camera->TTL = time(0) + CAMERA_LIVE_SEC;
-    camera->infoLock--;
     return 0;
 }
