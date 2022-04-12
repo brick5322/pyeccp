@@ -20,7 +20,7 @@ int ECCP_message_exec(ECCP_message *Emsg, Camera_info *camera) {
     if(func)
         return func(Emsg->data, Emsg->length, camera);
     else
-        return 0;
+        return ERR_NO_CODE_FUNC;
 }
 
 void vec_ECCP_FUNC(unsigned char func_code,ECCP_func* func)

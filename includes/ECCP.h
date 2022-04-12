@@ -11,6 +11,7 @@
 
 
 #define ERR_FILE_CANNOT_OPEN (-22)
+#define ERR_NO_CODE_FUNC (-2)
 
 /**
  * @class ECCP_message
