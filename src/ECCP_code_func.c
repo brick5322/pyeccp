@@ -7,7 +7,8 @@
 #include <time.h>
 #include <stdio.h>
 
-int func0_login(const char* data,unsigned short length,Camera_info* camera)
+
+int func0_login(const char* data, unsigned short length, Camera_info* camera)
 {
     Camera_info_basic_set(camera,NULL,data,time(0)+CAMERA_LIVE_SEC);
     return 0;
@@ -19,21 +20,30 @@ int func1_heartbeat(const char* data,unsigned short length,Camera_info* camera) 
 }
 
 int func2_camera_detail(const char* data,unsigned short length,Camera_info* camera) {
+    if(!camera->infoLock)
+        return ERR_CONNECTION_LOCKED;
+    camera->infoLock--;
+
     BMPcodec_resize(&camera->codec,((unsigned int *) data)[0], ((int *) data)[1],_24Bits);
+    camera->TTL = time(0) + CAMERA_LIVE_SEC;
     return 0;
 }
 
 int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
 {
     static char filename[PATH_MAX];
+    if(!camera->infoLock)
+        return ERR_CONNECTION_LOCKED;
+    camera->infoLock--;
     camera_data* cameraData = (camera_data *) data;
     sprintf(filename,"%s/%ld.bmp",camera->filepath,cameraData->time);
     FILE* fp;
     if(!cameraData->pkt_cnt)
     {
+        camera->infoLock++;
         fp = fopen(filename,"wb+");
         if(!fp)
-            return 22;
+            return ERR_FILE_CANNOT_OPEN;
         camera->codec.stm->handler_object = fp;
         BMPcodec_writeHeader(&camera->codec);
         color32 c;
@@ -43,12 +53,44 @@ int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
     }
     fp = fopen(filename,"rb+");
     if(!fp)
-        return 22;
+        return ERR_FILE_CANNOT_OPEN;
     int pos = cameraData->pkt_cnt*cameraData->pkt_size+(14+camera->codec.info_header.bitInfoHeadersz);
     fseek(fp,pos,SEEK_SET);
     camera->codec.stm->handler_object = fp;
     camera->codec.stm->handler_subject = cameraData->pkt_data;
     BMPcodec_write(&camera->codec,cameraData->pkt_size);
     fclose(fp);
-    return cameraData->pkt_size-PKT_BLOCK_SIZE;
+    camera->TTL = time(0) + CAMERA_LIVE_SEC;
+    if(cameraData->pkt_size-PKT_BLOCK_SIZE)
+        camera->infoLock--;
+    return 0;
+}
+
+int func4_start_timer(const char* data,unsigned short length,Camera_info* camera)
+{
+    if(!camera->infoLock)
+        return ERR_CONNECTION_LOCKED;
+    camera->infoLock--;
+    camera->TTL = time(0) + CAMERA_LIVE_SEC;
+    camera->infoLock++;
+    return 0;
+}
+
+int func5_take_photo(const char* data,unsigned short length,Camera_info* camera)
+{
+    if(!camera->infoLock)
+        return ERR_CONNECTION_LOCKED;
+    camera->infoLock--;
+    camera->infoLock++;
+    return func3_take_photo(data,length,camera);
+}
+
+int func6_stop_timer(const char* data,unsigned short length,Camera_info* camera)
+{
+    if(!camera->infoLock)
+        return ERR_CONNECTION_LOCKED;
+    camera->infoLock--;
+    camera->TTL = time(0) + CAMERA_LIVE_SEC;
+    camera->infoLock--;
+    return 0;
 }

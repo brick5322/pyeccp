@@ -8,6 +8,11 @@
 
 #define PKT_BLOCK_SIZE (8192)
 #define ECCP_buffersz (PKT_BLOCK_SIZE + 16)
+
+
+#define ERR_CONNECTION_LOCKED (-1)
+#define ERR_FILE_CANNOT_OPEN (-22)
+
 /**
  * @class ECCP_message
  * @brief ECCP协议报文结构体

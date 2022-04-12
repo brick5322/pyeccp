@@ -17,6 +17,7 @@ void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticI
     if(staticID)
         memcpy(info->staticID,staticID,32);
     info->TTL = TTL;
+    int infoLock = 0;
 }
 
 int Camera_save_picture(clock_t time, Camera_info *info, const char *data)

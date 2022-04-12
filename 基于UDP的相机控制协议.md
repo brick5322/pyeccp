@@ -115,6 +115,10 @@ stateDiagram
 | clock_t            | unsigned short | short                   | string |
 | 第一个包的发送时间 | 从0开始        | 至多**<u>8192</u>**字节 | BGR    |
 
+主机的行为：
+
+按照片号和数据包标号存储照片
+
 #### `0x4`：开启从机定时发送
 
 主机：发送定时器时间
@@ -132,6 +136,17 @@ stateDiagram
 
 主机：非法
 从机：拍照，发送24位RGB数据
+
+从机返回的信息格式：
+
+| 照片号             | 数据包标号     | 数据长                  | 数据块 |
+| ------------------ | -------------- | ----------------------- | ------ |
+| clock_t            | unsigned short | short                   | string |
+| 第一个包的发送时间 | 从0开始        | 至多**<u>8192</u>**字节 | BGR    |
+
+主机的行为：
+
+按照片号和数据包标号存储照片
 
 #### `0x6`：结束从机定时发送
 
@@ -184,6 +199,7 @@ typedef struct PyCameraObject
     PyObject_HEAD
 	Camera_info info;
     EventList event;
+    int infoLock;
 }PyCameraObject
     
 PyDictObject listen_dict;//k:v long long（sockaddr_in）/PyCameraObject
@@ -212,10 +228,10 @@ graph TB;
 	if1--不触发-->recv非阻塞;
 	recv非阻塞-->获取报文;
 	获取报文--Yes-->ECCP_is_Invalid;
-	ECCP_is_Invalid-->0x1{0x1构造报文};
+	ECCP_is_Invalid-->0x1{0x0构造报文};
 	0x1--no-->ECCP_message_exec;
-	0x1--yes-->构造PyCameraObject;
-	构造PyCameraObject-->ECCP_message_exec;
+	0x1--yes-->构造PyCameraObject存入字典;
+	构造PyCameraObject存入字典-->ECCP_message_exec;
 	获取报文--No-->从Camera_EventList发送数据包;
 	ECCP_message_exec-->从Camera_EventList发送数据包;
 	从Camera_EventList发送数据包-->start;
@@ -234,9 +250,9 @@ graph TB;
 int func(const char* data,unsigned short length,Camera_info* camera)
 {
 	if(success)
-        return 0;
+        return (A_NUM_NOT_BELOW_ZERO);
     else
-        return some_other_number;
+        return (A_NUM_BELOW_ZERO);
 }
 ```
 
@@ -269,6 +285,7 @@ typedef struct Camera_info
     char staticID[32];
     BMPcodec codec;
     clock_t TTL;
+    int infolock;
 } camera_info
     
 int Camera_save_picture(Camera_info* camera,clock_t time,const char* data);

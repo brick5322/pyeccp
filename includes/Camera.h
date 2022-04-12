@@ -14,6 +14,7 @@ typedef struct Camera_info
     char filepath[PATH_MAX];
     char staticID[32];
     BMPcodec codec;
+    int infoLock;
     clock_t TTL;
 } Camera_info;
 /**
