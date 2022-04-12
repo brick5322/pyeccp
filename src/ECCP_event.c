@@ -1,0 +1,83 @@
+//
+// Created by bric on 2022/4/12.
+//
+
+#include <ECCP_event.h>
+#include <stdlib.h>
+
+eventNode* eventNode_alloc(ECCP_message* msg)
+{
+    eventNode* ret = malloc(sizeof(eventNode));
+    ret->msg_data = msg;
+    return ret;
+}
+
+eventNode* event_free(eventNode* n)
+{
+    eventNode* ret = n->next;
+    free(n);
+    return ret;
+}
+
+ECCP_message* queue_in_new_message(eventQueue* queue,int msg_length)
+{
+    ECCP_message *msg = malloc(msg_length);
+
+    if(queue->length)
+        queue->tailNode = queue->tailNode->next = eventNode_alloc(msg);
+    else
+        queue->tailNode = queue->headNode = eventNode_alloc(msg);
+
+    queue->length++;
+    return msg;
+}
+
+ECCP_message* queue_out_message(eventQueue* queue)
+{
+    ECCP_message* msg = NULL;
+    if(queue->length)
+    {
+        eventNode* head = queue->headNode;
+        msg = head->msg_data;
+        queue->headNode = head->next;
+        event_free(head);
+    }
+    return msg;
+}
+
+void ECCP_set_message_1(eventQueue* queue)
+{
+    ECCP_message* msg = queue_in_new_message(queue,sizeof(clock_t)+4);
+    msg->length = sizeof(clock_t);
+    msg->func_code = 1;
+    *(clock_t*)msg->data = time(0);
+}
+
+void ECCP_set_message_2(eventQueue* queue)
+{
+    ECCP_message* msg = queue_in_new_message(queue,4);
+    msg->length = 0;
+    msg->func_code = 2;
+}
+
+void ECCP_set_message_3(eventQueue* queue)
+{
+    ECCP_message* msg = queue_in_new_message(queue,4);
+    msg->length = 0;
+    msg->func_code = 3;
+}
+
+void ECCP_set_message_4(eventQueue* queue,int duration)
+{
+    ECCP_message* msg = queue_in_new_message(queue,4+sizeof(unsigned int));
+    msg->length = 0;
+    msg->func_code = 4;
+    *(int*)msg->data = duration;
+}
+
+void ECCP_set_message_6(eventQueue* queue)
+{
+    ECCP_message* msg = queue_in_new_message(queue,4);
+    msg->length = 0;
+    msg->func_code = 6;
+}

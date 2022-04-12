@@ -4,7 +4,7 @@
 
 ## 协议包含的内容
 
-报文长度
+报文数据长度
 报文功能码
 报文数据
 
@@ -198,9 +198,8 @@ typedef struct PyCameraObject
 {
     PyObject_HEAD
 	Camera_info info;
-    EventList event;
-    int infoLock;
-}PyCameraObject
+    EventQueue event;
+}PyCameraObject;
     
 PyDictObject listen_dict;//k:v long long（sockaddr_in）/PyCameraObject
 
@@ -239,7 +238,7 @@ graph TB;
 
 
 
-#### -2、（C层面）功能码函数
+#### -2、（C层面）协议行为层
 
 这一层旨在实现服务器端解析功能码后要执行的函数，也即处在 图1-1 **上位机后置行为**中，具体函数的名称无实际意义，但格式上要遵循：
 
@@ -285,7 +284,6 @@ typedef struct Camera_info
     char staticID[32];
     BMPcodec codec;
     clock_t TTL;
-    int infolock;
 } camera_info
     
 int Camera_save_picture(Camera_info* camera,clock_t time,const char* data);
