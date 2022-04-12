@@ -6,7 +6,8 @@
 #define PYECCP_ECCP_H
 #include <Camera.h>
 
-#define ECCP_buffersz (8208)
+#define PKT_BLOCK_SIZE (8192)
+#define ECCP_buffersz (PKT_BLOCK_SIZE + 16)
 /**
  * @class ECCP_message
  * @brief ECCP协议报文结构体

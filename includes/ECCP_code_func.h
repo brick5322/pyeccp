@@ -9,7 +9,7 @@
  */
 
 #include <Camera.h>
-#define PKT_BLOCK_SIZE (8192)
+#include <ECCP.h>
 
 typedef struct camera_data
 {

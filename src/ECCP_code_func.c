@@ -44,11 +44,11 @@ int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
     fp = fopen(filename,"rb+");
     if(!fp)
         return 22;
-    int pos = cameraData->pkt_cnt*PKT_BLOCK_SIZE+(14+camera->codec.info_header.bitInfoHeadersz);
+    int pos = cameraData->pkt_cnt*cameraData->pkt_size+(14+camera->codec.info_header.bitInfoHeadersz);
     fseek(fp,pos,SEEK_SET);
     camera->codec.stm->handler_object = fp;
     camera->codec.stm->handler_subject = cameraData->pkt_data;
     BMPcodec_write(&camera->codec,cameraData->pkt_size);
     fclose(fp);
-    return 0;
+    return cameraData->pkt_size-PKT_BLOCK_SIZE;
 }
