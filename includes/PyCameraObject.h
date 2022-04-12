@@ -15,7 +15,7 @@ typedef struct PyCameraObject
 {
     PyObject_HEAD
     Camera_info info;
-    eventQueue event;
+    EventQueue event;
 }PyCameraObject;
 
 PyDictObject listen_dict;

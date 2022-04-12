@@ -5,47 +5,47 @@
 #include <ECCP_event.h>
 #include <stdlib.h>
 
-eventNode* eventNode_alloc(ECCP_message* msg)
+EventNode* EventNode_alloc(ECCP_message* msg)
 {
-    eventNode* ret = malloc(sizeof(eventNode));
+    EventNode* ret = malloc(sizeof(EventNode));
     ret->msg_data = msg;
     return ret;
 }
 
-eventNode* event_free(eventNode* n)
+EventNode* EventNode_free(EventNode* n)
 {
-    eventNode* ret = n->next;
+    EventNode* ret = n->next;
     free(n);
     return ret;
 }
 
-ECCP_message* queue_in_new_message(eventQueue* queue,int msg_length)
+ECCP_message* queue_in_new_message(EventQueue* queue, int msg_length)
 {
     ECCP_message *msg = malloc(msg_length);
 
     if(queue->length)
-        queue->tailNode = queue->tailNode->next = eventNode_alloc(msg);
+        queue->tailNode = queue->tailNode->next = EventNode_alloc(msg);
     else
-        queue->tailNode = queue->headNode = eventNode_alloc(msg);
+        queue->tailNode = queue->headNode = EventNode_alloc(msg);
 
     queue->length++;
     return msg;
 }
 
-ECCP_message* queue_out_message(eventQueue* queue)
+ECCP_message* queue_out_message(EventQueue* queue)
 {
     ECCP_message* msg = NULL;
     if(queue->length)
     {
-        eventNode* head = queue->headNode;
+        EventNode* head = queue->headNode;
         msg = head->msg_data;
         queue->headNode = head->next;
-        event_free(head);
+        EventNode_free(head);
     }
     return msg;
 }
 
-void ECCP_set_message_1(eventQueue* queue)
+void ECCP_set_message_1(EventQueue* queue)
 {
     ECCP_message* msg = queue_in_new_message(queue,sizeof(clock_t)+4);
     msg->length = sizeof(clock_t);
@@ -53,21 +53,21 @@ void ECCP_set_message_1(eventQueue* queue)
     *(clock_t*)msg->data = time(0);
 }
 
-void ECCP_set_message_2(eventQueue* queue)
+void ECCP_set_message_2(EventQueue* queue)
 {
     ECCP_message* msg = queue_in_new_message(queue,4);
     msg->length = 0;
     msg->func_code = 2;
 }
 
-void ECCP_set_message_3(eventQueue* queue)
+void ECCP_set_message_3(EventQueue* queue)
 {
     ECCP_message* msg = queue_in_new_message(queue,4);
     msg->length = 0;
     msg->func_code = 3;
 }
 
-void ECCP_set_message_4(eventQueue* queue,int duration)
+void ECCP_set_message_4(EventQueue* queue, int duration)
 {
     ECCP_message* msg = queue_in_new_message(queue,4+sizeof(unsigned int));
     msg->length = 0;
@@ -75,7 +75,7 @@ void ECCP_set_message_4(eventQueue* queue,int duration)
     *(int*)msg->data = duration;
 }
 
-void ECCP_set_message_6(eventQueue* queue)
+void ECCP_set_message_6(EventQueue* queue)
 {
     ECCP_message* msg = queue_in_new_message(queue,4);
     msg->length = 0;

@@ -240,7 +240,7 @@ graph TB;
 
 #### -2、（C层面）协议行为层
 
-这一层旨在实现服务器端解析功能码后要执行的函数，也即处在 图1-1 **上位机后置行为**中，具体函数的名称无实际意义，但格式上要遵循：
+这一层旨在实现服务器端行为，包括生成报文和解析功能码后要执行的函数，也即处在 图1-1 **上位机后置行为**中，具体函数的名称无实际意义，但格式上要遵循：
 
 ```C
 //data为后续的数据
@@ -253,6 +253,34 @@ int func(const char* data,unsigned short length,Camera_info* camera)
     else
         return (A_NUM_BELOW_ZERO);
 }
+```
+
+```C
+typedef struct EventQueue EventQueue;
+typedef struct EventQueue EventQueue;
+
+struct EventQueue{
+    eventNode* headNode;
+    eventNode* tailNode;
+    int length;
+};
+
+struct EventQueue{
+    ECCP_message * msg_data;
+    eventNode* next;
+};
+
+ECCP_message* queue_in_new_message(EventQueue* queue, int length);
+ECCP_message* queue_out_message(EventQueue* queue);
+
+EventNode* EventNode_alloc(ECCP_message* msg);
+EventNode* EventNode_free(EventNode* n);
+
+void ECCP_set_message_1(EventQueue* queue);
+void ECCP_set_message_2(EventQueue* queue);
+void ECCP_set_message_3(EventQueue* queue);
+void ECCP_set_message_4(EventQueue* queue, int duration);
+void ECCP_set_message_6(EventQueue* queue);
 ```
 
 

@@ -7,30 +7,30 @@
 
 #include <ECCP.h>
 
-typedef struct eventQueue eventQueue;
-typedef struct eventNode eventNode;
+typedef struct EventQueue EventQueue;
+typedef struct EventNode EventNode;
 
-struct eventQueue{
-    eventNode* headNode;
-    eventNode* tailNode;
+struct EventQueue{
+    EventNode* headNode;
+    EventNode* tailNode;
     int length;
 };
 
-struct eventNode{
+struct EventNode{
     ECCP_message * msg_data;
-    eventNode* next;
+    EventNode* next;
 };
 
-ECCP_message* queue_in_new_message(eventQueue* queue,int length);
-ECCP_message* queue_out_message(eventQueue* queue);
+ECCP_message* queue_in_new_message(EventQueue* queue, int length);
+ECCP_message* queue_out_message(EventQueue* queue);
 
-eventNode* eventNode_alloc(ECCP_message* msg);
-eventNode* event_free(eventNode* n);
+EventNode* EventNode_alloc(ECCP_message* msg);
+EventNode* EventNode_free(EventNode* n);
 
-void ECCP_set_message_1(eventQueue* queue);
-void ECCP_set_message_2(eventQueue* queue);
-void ECCP_set_message_3(eventQueue* queue);
-void ECCP_set_message_4(eventQueue* queue,int duration);
-void ECCP_set_message_6(eventQueue* queue);
+void ECCP_set_message_1(EventQueue* queue);
+void ECCP_set_message_2(EventQueue* queue);
+void ECCP_set_message_3(EventQueue* queue);
+void ECCP_set_message_4(EventQueue* queue, int duration);
+void ECCP_set_message_6(EventQueue* queue);
 
 #endif //PYECCP_ECCP_EVENT_H
