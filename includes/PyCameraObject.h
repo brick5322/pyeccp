@@ -22,14 +22,15 @@ PyDictObject listen_dict;
 
 PyAPI_DATA(PyTypeObject) PyCamera_Type;
 
-PyObject* banned_alloc(); //用报异常来封掉构造
-PyObject* get_ID(PyCameraObject*);
-PyObject* get_filePath(PyCameraObject*);
-PyObject* set_filePath(PyCameraObject*,PyObject** args);
-PyObject* getPic(PyCameraObject*);
-PyObject* startPicStream(PyCameraObject*,PyObject**args);
-PyObject* finishPicStream(PyCameraObject*);
+static PyObject* PyTypeObject_new_is_banned(PyTypeObject* obj); //用报异常来封掉构造
+static PyCameraObject* PyTypeObject_private_new(PyTypeObject* obj);
+static PyObject* get_ID(PyCameraObject*);
+static PyObject* get_filePath(PyCameraObject*);
+static PyObject* set_filePath(PyCameraObject*,PyObject* args);
+static PyObject* getPic(PyCameraObject*);
+static PyObject* startPicStream(PyCameraObject*,PyObject* args);
+static PyObject* finishPicStream(PyCameraObject*);
 
-PyObject* exec(PyObject * self,PyObject** args);
+static PyObject* exec(PyObject * self,PyObject* args);
 
 #endif //PYECCP_PYCAMERAOBJECT_H
