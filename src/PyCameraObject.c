@@ -3,6 +3,7 @@
 //
 
 #include "PyCameraObject.h"
+#include <ECCP_net.h>
 
 int isDir(const char *filepath) {
     PyObject* obj = PyImport_ImportModule("os.path");
@@ -87,5 +88,30 @@ static PyObject* finishPicStream(PyCameraObject* obj)
 
 static PyObject* exec(PyObject * self,PyObject* args,PyObject* kwargs)
 {
+    int port;
+    int max_access;
+    PyObject* func;
+    char* keys[2];
+    char key1[] = "callback";
+    char key2[] = "";
+    //?
+    PyArg_ParseTupleAndKeywords(args,kwargs,"ii$O",keys,port,max_access,func);
+    SOCKET socket = set_listen(port,max_access);
+    char IP_buffer[20];
+    PyObject * lListenCamera = PyDict_Values((PyObject *) &listen_dict);
+    Py_ssize_t len = PyList_Size(lListenCamera);
+    for(Py_ssize_t i = 0;i<len;i++)
+    {
+        PyCameraObject * camera=PyList_GetItem(lListenCamera,i);
+        for(int nb_list = 0;nb_list<camera->event.length;nb_list++)
+        {
+            ECCP_message *Emsg = queue_out_move_message(&camera->event);
+            if(send_eccp_msg(socket,IP_buffer,Emsg))
+                queue_in_message(&camera->event,Emsg);
+            else
+                free(Emsg);
+        }
+        ECCP_set_message_1(&camera->event);
+    }
     Py_RETURN_NONE;
 }

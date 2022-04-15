@@ -187,11 +187,50 @@ class Camera:
 
 listen_dict = {}
 #这里保存Camera列表，exec会轮询这个列表中的Camera元素以接收并存储照片
-def exec(IP_address: str, port: int, maxnb: int, {callback=func}) -> None: ...
+def exec(port: int, maxnb: int, {callback=func}) -> None: ...
 #这里的callback用作接入后的操作，形如def func(var:Camera) -> None
 #例：
-#pyeccp.exec(127.0.0.1,1111,0xffff,callback=func)
+#pyeccp.exec(1111,0xffff,callback=func)
 ```
+
+#### -0.5、（CPython API层面）exec函数设计
+
+因为这个函数太复杂了，在服务器中理应当占用一个独立的Python线程和一个独立的UDP端口所以单拎出来设计，
+
+```python
+PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
+```
+
+在`exec`函数中应当具有这样的循环：
+
+```mermaid
+graph TB;
+	start-->if1{定时器};
+	if1--触发-->心跳包[/轮询字典删除超时相机并依次发送心跳包/];
+	心跳包-->recv非阻塞;
+	if1--不触发-->recv非阻塞;
+	recv非阻塞-->获取报文;
+	获取报文--Yes-->ECCP_is_Invalid;
+	ECCP_is_Invalid-->0x1{0x0构造报文};
+	0x1--no-->ECCP_message_exec;
+	0x1--yes-->构造PyCameraObject存入字典;
+	构造PyCameraObject存入字典-->ECCP_message_exec;
+	获取报文--No-->从Camera_EventList发送数据包;
+	ECCP_message_exec-->从Camera_EventList发送数据包;
+	从Camera_EventList发送数据包-->start;
+```
+
+```C
+//非阻塞的监听一个端口，MSG_DONTWAIT
+int recv_msg(SOCKET socket,ECCP_message* msg);
+int send_msg(SOCKET socket,ECCP_message* msg);
+//port小字节序
+SOCKET set_listen(unsigned short port,int max_access);
+```
+
+
+
+#### -1、（CPython API层面）设计
 
 #### -1、（CPython API层面）设计
 
@@ -217,25 +256,6 @@ PyObject* finishPicStream(PyCameraObject*);
 
 //会调用List轮询各socket
 PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
-```
-
-在`exec`函数中应当具有这样的循环：
-
-```mermaid
-graph TB;
-	start-->if1{定时器};
-	if1--触发-->心跳包[/轮询字典删除超时相机并依次发送心跳包/];
-	心跳包-->recv非阻塞;
-	if1--不触发-->recv非阻塞;
-	recv非阻塞-->获取报文;
-	获取报文--Yes-->ECCP_is_Invalid;
-	ECCP_is_Invalid-->0x1{0x0构造报文};
-	0x1--no-->ECCP_message_exec;
-	0x1--yes-->构造PyCameraObject存入字典;
-	构造PyCameraObject存入字典-->ECCP_message_exec;
-	获取报文--No-->从Camera_EventList发送数据包;
-	ECCP_message_exec-->从Camera_EventList发送数据包;
-	从Camera_EventList发送数据包-->start;
 ```
 
 
@@ -273,7 +293,7 @@ struct EventQueue{
 };
 
 ECCP_message* queue_in_new_message(EventQueue* queue, int length);
-ECCP_message* queue_out_message(EventQueue* queue);
+ECCP_message* queue_out_move_message(EventQueue* queue);
 
 EventNode* EventNode_alloc(ECCP_message* msg);
 EventNode* EventNode_free(EventNode* n);

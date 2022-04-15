@@ -32,7 +32,17 @@ ECCP_message* queue_in_new_message(EventQueue* queue, int msg_length)
     return msg;
 }
 
-ECCP_message* queue_out_message(EventQueue* queue)
+void queue_in_message(EventQueue *queue, ECCP_message *msg) {
+
+    if(queue->length)
+        queue->tailNode = queue->tailNode->next = EventNode_alloc(msg);
+    else
+        queue->tailNode = queue->headNode = EventNode_alloc(msg);
+
+    queue->length++;
+}
+
+ECCP_message* queue_out_move_message(EventQueue* queue)
 {
     ECCP_message* msg = NULL;
     if(queue->length)
