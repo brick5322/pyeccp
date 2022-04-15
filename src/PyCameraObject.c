@@ -5,10 +5,13 @@
 #include "PyCameraObject.h"
 
 int isDir(const char *filepath) {
-    if(filepath)
-        return 1;
-    else
-        return 0;
+    PyObject* obj = PyImport_ImportModule("os.path");
+    if(!obj)
+    {
+        PyErr_SetString(PyExc_ModuleNotFoundError,"No module named 'os.path'.");
+        return NULL;
+    }
+    return PyObject_CallFunction(PyDict_GetItemString(PyModule_GetDict(obj), "isdir"), "s", filepath)==Py_True;
 }
 
 static PyObject* PyTypeObject_new_is_banned(PyTypeObject* obj)
@@ -21,7 +24,7 @@ static PyCameraObject* PyTypeObject_private_new(PyTypeObject* self)
 {
     PyCameraObject *ret = (PyCameraObject *) self->tp_alloc(self, self->tp_basicsize);
     if(!ret)
-        PyErr_SetString(PyExc_MemoryError,"A Camera has assess into the system,but connot alloc a Camera Object for it.");
+        PyErr_SetString(PyExc_MemoryError,"A Camera has access into the system,but connot alloc a Camera Object for it.");
     return ret;
 }
 
@@ -82,7 +85,7 @@ static PyObject* finishPicStream(PyCameraObject* obj)
     Py_RETURN_NONE;
 }
 
-static PyObject* exec(PyObject * self,PyObject* args)
+static PyObject* exec(PyObject * self,PyObject* args,PyObject* kwargs)
 {
     Py_RETURN_NONE;
 }

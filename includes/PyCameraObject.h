@@ -31,6 +31,6 @@ static PyObject* getPic(PyCameraObject*);
 static PyObject* startPicStream(PyCameraObject*,PyObject* args);
 static PyObject* finishPicStream(PyCameraObject*);
 
-static PyObject* exec(PyObject * self,PyObject* args);
+static PyObject* exec(PyObject * self,PyObject* args,PyObject* kwargs);
 
 #endif //PYECCP_PYCAMERAOBJECT_H

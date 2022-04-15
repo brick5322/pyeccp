@@ -187,8 +187,10 @@ class Camera:
 
 listen_dict = {}
 #这里保存Camera列表，exec会轮询这个列表中的Camera元素以接收并存储照片
-def exec(IP_address: str, port: int, maxnb: int, callback) -> None: ...
+def exec(IP_address: str, port: int, maxnb: int, {callback=func}) -> None: ...
 #这里的callback用作接入后的操作，形如def func(var:Camera) -> None
+#例：
+#pyeccp.exec(127.0.0.1,1111,0xffff,callback=func)
 ```
 
 #### -1、（CPython API层面）设计
@@ -214,7 +216,7 @@ PyObject* startPicStream(PyCameraObject*,PyObject**args);
 PyObject* finishPicStream(PyCameraObject*);
 
 //会调用List轮询各socket
-PyObject* exec(PyModuleObject* module,PyObject** args);
+PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
 ```
 
 在`exec`函数中应当具有这样的循环：
