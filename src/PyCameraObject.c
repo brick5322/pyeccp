@@ -88,14 +88,33 @@ static PyObject* finishPicStream(PyCameraObject* obj)
 
 static PyObject* exec(PyObject * self,PyObject* args,PyObject* kwargs)
 {
+    PyObject* callback_func;
     int port;
     int max_access;
-    PyObject* func;
-    char* keys[2];
-    char key1[] = "callback";
-    char key2[] = "";
-    //?
-    PyArg_ParseTupleAndKeywords(args,kwargs,"ii$O",keys,port,max_access,func);
+    if (!PyArg_ParseTuple(args, "ii", &port, &max_access))
+        return NULL;
+    if (port > 0xffff)
+    {
+        PyErr_SetString(PyExc_TypeError, "port(Arg1) should be an unsigned short value.");
+        return NULL;
+    }
+    if (callback_func = PyDict_GetItemString(kwargs, "callback"))
+    {
+        if (!PyCallable_Check(callback_func))
+        {
+            PyErr_SetString(PyExc_TypeError, "\"callback\" should be a function or lambda expression, which means it must be callable");
+            return NULL;
+        }
+    }
+    else
+    {
+        PyErr_SetString(PyExc_TypeError, "must have a keyword parameter whose key-name is \"callback\"");
+        return NULL;
+    }
+    Py_RETURN_NONE;
+
+
+
     SOCKET socket = set_listen(port,max_access);
     char IP_buffer[20];
     PyObject * lListenCamera = PyDict_Values((PyObject *) &listen_dict);
