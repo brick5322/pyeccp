@@ -12,6 +12,6 @@ typedef int SOCKET;
 #endif
 
 SOCKET set_listen(unsigned short port,int max_access);
-int recv_eccp_msg(SOCKET socket,ECCP_message* msg);
+int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer);
 int send_eccp_msg(SOCKET socket,const char *ip,ECCP_message* msg);
 #endif //PYECCP_ECCP_NET_H
