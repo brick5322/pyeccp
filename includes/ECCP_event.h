@@ -26,6 +26,7 @@ struct EventNode{
 ECCP_message* queue_in_new_message(EventQueue* queue, int length);
 void queue_in_message(EventQueue* queue, ECCP_message* msg);
 ECCP_message* queue_out_move_message(EventQueue* queue);
+void EventQueue_clear(EventQueue* queue);
 
 EventNode* EventNode_alloc(ECCP_message* msg);
 EventNode* EventNode_free(EventNode* n);
