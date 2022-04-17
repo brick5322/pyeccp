@@ -15,37 +15,42 @@ static PyMethodDef PyCamera_methods[] =
                 {NULL,NULL,0,NULL}
         };
 
+static PyMethodDef PyECCPserver_methods[] =
+        {
+                {"exec",(ternaryfunc) PyECCPserver_exec,METH_VARARGS|METH_KEYWORDS,"start ECC service"},
+                {NULL,NULL,0,NULL}
+        };
 
 PyTypeObject PyCamera_Type =
         {
                 PyObject_HEAD_INIT(NULL)
-                "ECCP.camera",
+                "PyECCPserver.camera",
                 sizeof(PyCameraObject),
                 0,
-                (destructor) PyCameraObject_dealloc(),
+                (destructor) PyCameraObject_dealloc,
                 0,
                 0,
                 0,
                 0,
-                (reprfunc)PyRDR2Pic_repr,
+                (reprfunc)PyCamera_repr,
                 0,
                 0,
                 0,
                 0,
                 0,
-                (reprfunc)PyRDR2Pic_str,
+                (reprfunc)PyCamera_str,
                 PyObject_GenericGetAttr,
+                PyObject_GenericSetAttr,
                 0,
-                0,
-                Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-                "a drive ",
-                0,
-                0,
-                0,
+                Py_TPFLAGS_DEFAULT ,
+                "a driver for Camera worked on Internet",
                 0,
                 0,
                 0,
-                PyRDR2Pic_methods,//tp_methods 成员函数
+                0,
+                0,
+                0,
+                PyCamera_methods,
                 0,//tp_members 成员变量
                 0,
                 0,
@@ -55,6 +60,35 @@ PyTypeObject PyCamera_Type =
                 0,
                 0,
                 0,
-                (newfunc)PyRDR2Pic_new,
-                (freefunc)PyRDR2Pic_free,
+                (newfunc)PyCameraObject_new_is_banned,
+                0,//?
         };
+static PyModuleDef PyECCPserver_Module =
+        {
+                PyModuleDef_HEAD_INIT,
+                "PyECCPserver",
+                "ECCP server module",
+                -1,
+                NULL,
+        };
+
+PyMODINIT_FUNC PyInit_PyECCPserver(void)
+{
+    if (PyType_Ready(&PyCamera_Type) < 0)
+        return NULL;
+    PyObject* module = PyModule_Create(&PyECCPserver_Module);
+
+    if (!module)
+        return NULL;
+    Py_INCREF(&PyCamera_Type);
+
+    PyModule_AddObject(module, "camera", &PyCamera_Type);
+    PyModule_AddObject(module, "list_dict", listen_dict);
+    PyModule_AddFunctions(module,PyECCPserver_methods);
+
+    PyModule_AddStringConstant(module, "__author__", "brick");
+    PyModule_AddStringConstant(module, "__version__", "1.0.0");
+    PyModule_AddIntConstant(module, "year", 2022);
+
+    return module;
+}

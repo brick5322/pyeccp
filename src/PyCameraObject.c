@@ -33,6 +33,18 @@ static PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
     return ret;
 }
 
+static PyObject* PyCamera_repr(PyCameraObject* obj)
+{
+    char buf[sizeof("<class 'Camera'> with ID = ")+32];
+    sprintf(buf, "<class 'Camera'> with ID = ");
+    memcpy(buf+sizeof("<class 'Camera'> with ID = ")-1,obj->info.staticID,32);
+    return _PyUnicode_FromASCII(buf, sizeof("<class 'Camera'> with ID = ")+31);
+}
+
+static PyObject* PyCamera_str(PyCameraObject* obj)
+{
+    return _PyUnicode_FromASCII(obj->info.staticID, 32);
+}
 
 static PyObject* PyCameraObject_get_ID(PyCameraObject* obj)
 {

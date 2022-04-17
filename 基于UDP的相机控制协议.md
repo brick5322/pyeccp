@@ -187,10 +187,10 @@ class Camera:
 
 listen_dict = {}
 #这里保存Camera列表，exec会轮询这个列表中的Camera元素以接收并存储照片
-def exec(port: int, maxnb: int, {callback=func}) -> None: ...
+def PyECCPserver_exec(port: int, maxnb: int, {callback=func}) -> None: ...
 #这里的callback用作接入后的操作，形如def func(var:Camera) -> None
 #例：
-#pyeccp.exec(1111,0xffff,callback=func)
+#pyeccp.PyECCPserver_exec(1111,0xffff,callback=func)
 ```
 
 #### -0.5、（CPython API层面）exec函数设计
@@ -198,10 +198,10 @@ def exec(port: int, maxnb: int, {callback=func}) -> None: ...
 因为这个函数太复杂了，在服务器中理应当占用一个独立的Python线程和一个独立的UDP端口所以单拎出来设计，
 
 ```python
-PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
+PyObject* PyECCPserver_exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
 ```
 
-在`exec`函数中应当具有这样的循环：
+在`PyECCPserver_exec`函数中应当具有这样的循环：
 
 ```mermaid
 graph LR;
@@ -256,7 +256,7 @@ static PyObject* PyCameraObject_startPicStream(PyCameraObject*,PyObject**args);
 static PyObject* PyCameraObject_finishPicStream(PyCameraObject*);
 
 //会调用List轮询各socket
-static PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
+static PyObject* PyECCPserver_exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
 ```
 
 
