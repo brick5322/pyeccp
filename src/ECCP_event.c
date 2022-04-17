@@ -20,6 +20,14 @@ EventNode* EventNode_free(EventNode* n)
     return ret;
 }
 
+
+void queue_Init(EventQueue* queue)
+{
+queue->headNode=NULL;
+queue->tailNode=NULL;
+queue->length = 0;
+}
+
 ECCP_message* queue_in_new_message(EventQueue* queue, int msg_length)
 {
     ECCP_message *msg = malloc(msg_length);

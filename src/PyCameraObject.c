@@ -30,6 +30,7 @@ static PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
         PyErr_SetString(PyExc_MemoryError,"A Camera has access into the system,but connot alloc a Camera Object for it.");
         return NULL;
     }
+    queue_Init(&ret->event);
     return ret;
 }
 

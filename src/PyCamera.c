@@ -51,17 +51,17 @@ PyTypeObject PyCamera_Type =
                 0,
                 0,
                 PyCamera_methods,
-                0,//tp_members 成员变量
                 0,
                 0,
-                0,//dict
+                0,
+                0,/* @todo 在这里填入dict？*/
                 0,
                 0,
                 0,
                 0,
                 0,
                 (newfunc)PyCameraObject_new_is_banned,
-                0,//?
+                0,
         };
 static PyModuleDef PyECCPserver_Module =
         {

@@ -27,6 +27,11 @@ struct EventNode{
     ECCP_message * msg_data;
     EventNode* next;
 };
+/**
+ * @brief 初始化queue
+ * @param queue 要被初始化的队列
+ */
+void queue_Init(EventQueue* queue);
 
 
 /**
