@@ -53,6 +53,7 @@ void queue_in_message(EventQueue* queue, ECCP_message* msg);
  * @return 取出的ECCP事件指针 
  */
 ECCP_message* queue_out_move_message(EventQueue* queue);
+void EventQueue_clear(EventQueue* queue);
 
 /**
  * @brief 清除队列中所有的事件节点

@@ -36,6 +36,7 @@ void NetWork_Finialize();
  * @return SOCKET 开启的套接字
  */
 SOCKET set_listen(unsigned short port,int max_access);
+<<<<<<< HEAD
 
 /**
  * @brief 非阻塞的接收socket的UDP包，在msg上构造为ECCP_message，
@@ -56,5 +57,8 @@ int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer);
  * @param msg 
  * @return int 
  */
+=======
+int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer);
+>>>>>>> 447d461fffc9410aa8cd091e42e189d65f9c4199
 int send_eccp_msg(SOCKET socket,const char *ip,ECCP_message* msg);
 #endif //PYECCP_ECCP_NET_H
