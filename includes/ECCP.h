@@ -15,8 +15,9 @@
 
 /**
  * @class ECCP_message
- * @brief ECCP协议报文结构体
- * @details 应当将这个结构体套用在某块内存上，所以并不会提供ECCP_message_alloc()这样的函数
+ * @brief ECCP事件结构体
+ * @details 每个ECCP事件对应一个ECCP报文，而存储ECCP事件的本质，就是存储这些个报文
+ * \n 应当将这个结构体套用在某块内存上，所以并不会提供ECCP_message_alloc()这样的函数
  */
 typedef struct ECCP_message
 {

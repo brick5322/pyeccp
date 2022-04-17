@@ -9,6 +9,7 @@ EventNode* EventNode_alloc(ECCP_message* msg)
 {
     EventNode* ret = malloc(sizeof(EventNode));
     ret->msg_data = msg;
+    ret->next = NULL;
     return ret;
 }
 
@@ -50,10 +51,20 @@ ECCP_message* queue_out_move_message(EventQueue* queue)
         EventNode* head = queue->headNode;
         msg = head->msg_data;
         queue->headNode = head->next;
+        queue->length--;
         EventNode_free(head);
     }
     return msg;
 }
+
+void EventQueue_clear(EventQueue* queue)
+{
+    int len = queue->length;
+    EventNode* iterator = queue->headNode;
+    for(int i = 0;i<len;i++)
+        iterator = EventNode_free(iterator);
+}
+
 
 void ECCP_set_message_1(EventQueue* queue)
 {

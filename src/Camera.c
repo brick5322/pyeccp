@@ -10,7 +10,7 @@ unsigned int mem_to_file(stream *stm, unsigned int size)
     return len * size;
 }
 
-void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticID,clock_t TTL)
+void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticID,time_t TTL)
 {
     if(filepath)
         strcpy(info->filepath,filepath);
@@ -19,7 +19,7 @@ void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticI
     info->TTL = TTL;
 }
 
-int Camera_save_picture(clock_t time, Camera_info *info, const char *data)
+int Camera_save_picture(time_t time, Camera_info *info, const char *data)
 {
     static char filename[PATH_MAX];
     sprintf(filename, "%s/%ld.bmp", info->filepath, time);

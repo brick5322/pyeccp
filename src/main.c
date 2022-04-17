@@ -17,5 +17,7 @@ int main() \
 #elif test_num==4
     test(test4_ECCP_code_func)
 #elif test_num==5
-    test(temp_test1)
+    test(test5_EventQueue)
+#elif test_num==6
+    test(test6_net)
 #endif

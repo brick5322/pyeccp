@@ -8,4 +8,4 @@ set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
 include_directories(/usr/include/python3.10 /usr/include/x86_64-linux-gnu/python3.10 ./includes)
 
 link_libraries(python3.10 m)
-add_executable(pyECCP_test src/BMPcodec.c src/Camera.c ./src/main.c src/PyCameraObject.c src/PyECCP_Module.c src/stream.c test/test2_Camera.c test/test1_BMPcodec.c src/ECCP.c includes/ECCP.h test/test3_ECCP.c src/ECCP_code_func.c includes/ECCP_code_func.h test/test4_ECCP_code_func.c src/ECCP_event.c includes/ECCP_event.h test/temp_test1.c src/ECCP_net.c includes/ECCP_net.h)
+add_executable(pyECCP_test src/BMPcodec.c src/Camera.c ./src/main.c src/PyCameraObject.c src/stream.c test/test2_Camera.c test/test1_BMPcodec.c src/ECCP.c includes/ECCP.h test/test3_ECCP.c src/ECCP_code_func.c includes/ECCP_code_func.h test/test4_ECCP_code_func.c src/ECCP_event.c includes/ECCP_event.h test/temp_test1.c src/ECCP_net.c includes/ECCP_net.h src/PyCamera.c)

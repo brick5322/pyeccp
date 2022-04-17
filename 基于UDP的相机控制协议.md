@@ -67,14 +67,14 @@ stateDiagram
 
 | 时间     |
 | -------- |
-| clock_t  |
+| time_t   |
 | unix时间 |
 
 从机返回的信息格式：
 
 | 时间     |
 | -------- |
-| clock_t  |
+| time_t   |
 | unix时间 |
 
 主机的行为：
@@ -112,7 +112,7 @@ stateDiagram
 
 | 照片号             | 数据包标号     | 数据长                  | 数据块 |
 | ------------------ | -------------- | ----------------------- | ------ |
-| clock_t            | unsigned short | short                   | string |
+| time_t             | unsigned short | short                   | string |
 | 第一个包的发送时间 | 从0开始        | 至多**<u>8192</u>**字节 | BGR    |
 
 主机的行为：
@@ -141,7 +141,7 @@ stateDiagram
 
 | 照片号             | 数据包标号     | 数据长                  | 数据块 |
 | ------------------ | -------------- | ----------------------- | ------ |
-| clock_t            | unsigned short | short                   | string |
+| time_t             | unsigned short | short                   | string |
 | 第一个包的发送时间 | 从0开始        | 至多**<u>8192</u>**字节 | BGR    |
 
 主机的行为：
@@ -204,33 +204,33 @@ PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
 在`exec`函数中应当具有这样的循环：
 
 ```mermaid
-graph TB;
-	start-->if1{定时器};
-	if1--触发-->心跳包[/轮询字典删除超时相机并依次发送心跳包/];
-	心跳包-->recv非阻塞;
-	if1--不触发-->recv非阻塞;
-	recv非阻塞-->获取报文;
-	获取报文--Yes-->ECCP_is_Invalid;
-	ECCP_is_Invalid-->0x1{0x0构造报文};
-	0x1--no-->ECCP_message_exec;
-	0x1--yes-->构造PyCameraObject存入字典;
-	构造PyCameraObject存入字典-->ECCP_message_exec;
-	获取报文--No-->从Camera_EventList发送数据包;
-	ECCP_message_exec-->从Camera_EventList发送数据包;
-	从Camera_EventList发送数据包-->start;
+graph LR;
+	start-->recv非阻塞模式接收报文
+	-->ECCP_IS_INVALID
+	--0x0构造报文-->构造PyCameraObject
+	-->外部校验函数函数
+	--Success-->存入字典
+	-->ECCP_message_exec
+	--10次循环-->recv非阻塞模式接收报文;
+	ECCP_IS_INVALID--else-->ECCP_message_exec;
+	ECCP_IS_INVALID--10次循环-->recv非阻塞模式接收报文;
+	recv非阻塞模式接收报文
+	--跳出循环-->遍历listen_dict
+	-->删除超时的PyCameraObject
+	-->从PyCameraObject的事件中发送
+	--检查定时器-->填入心跳包
+	-->遍历listen_dict
 ```
 
 ```C
 //非阻塞的监听一个端口，MSG_DONTWAIT
-int recv_msg(SOCKET socket,ECCP_message* msg);
-int send_msg(SOCKET socket,ECCP_message* msg);
+int recv_eccp_msg(SOCKET socket,ECCP_message* msg);
+int send_eccp_msg(SOCKET socket,ECCP_message* msg);
 //port小字节序
 SOCKET set_listen(unsigned short port,int max_access);
 ```
 
 
-
-#### -1、（CPython API层面）设计
 
 #### -1、（CPython API层面）设计
 
@@ -245,17 +245,18 @@ typedef struct PyCameraObject
 PyDictObject listen_dict;//k:v long long（sockaddr_in）/PyCameraObject
 
 //PyCamera_Type 内封装的函数
-PyObject* wrong_alloc(); //通过报异常来封掉构造、形成工厂模式
-PyObject* get_ID(PyCameraObject*);
-PyObject* get_filePath(PyCameraObject*);
-PyObject* set_filePath(PyCameraObject*,PyObject** args);
+static PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj); //用报异常来封掉构造
+static PyCameraObject* PyCameraObject_private_new(PyTypeObject* obj);
+static PyObject* PyCameraObject_get_ID(PyCameraObject*);
+static PyObject* PyCameraObject_get_filePath(PyCameraObject*);
+static PyObject* PyCameraObject_set_filePath(PyCameraObject*,PyObject** args);
 
-PyObject* getPic(PyCameraObject*);
-PyObject* startPicStream(PyCameraObject*,PyObject**args);
-PyObject* finishPicStream(PyCameraObject*);
+static PyObject* PyCameraObject_getPic(PyCameraObject*);
+static PyObject* PyCameraObject_startPicStream(PyCameraObject*,PyObject**args);
+static PyObject* PyCameraObject_finishPicStream(PyCameraObject*);
 
 //会调用List轮询各socket
-PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
+static PyObject* exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
 ```
 
 
@@ -333,8 +334,8 @@ typedef struct Camera_info
     char filepath[PATH_MAX];
     char staticID[32];
     BMPcodec codec;
-    clock_t TTL;
+    time_t TTL;
 } camera_info
     
-int Camera_save_picture(Camera_info* camera,clock_t time,const char* data);
+int Camera_save_picture(Camera_info* camera,time_t time,const char* data);
 ```

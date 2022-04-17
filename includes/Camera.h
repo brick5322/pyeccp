@@ -2,7 +2,13 @@
 #define PYECCP_CAMERA_H
 
 #include <time.h>
+
+#ifdef __linux
 #include <linux/limits.h>
+#else
+#define PATH_MAX 260
+#endif
+
 #include <libCodec/BMPcodec.h>
 #define CAMERA_LIVE_SEC 30
 /**
@@ -14,7 +20,7 @@ typedef struct Camera_info
     char filepath[PATH_MAX];
     char staticID[32];
     BMPcodec codec;
-    clock_t TTL;
+    time_t TTL;
 } Camera_info;
 /**
  * @brief 设置Camera基本信息，包括文件路径和相机出厂ID
@@ -23,7 +29,7 @@ typedef struct Camera_info
  * @param staticID
  * @param TTL
  */
-void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticID,clock_t TTL);
+void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticID,time_t TTL);
 
 /**
  * @brief 通过相机信息，将裸数据存储为BMP格式的文件
@@ -32,7 +38,7 @@ void Camera_info_basic_set(Camera_info* info, char* filepath,const char* staticI
  * @param data 裸数据流，保证长度为width*height个像素长
  * @return 0为成功,其他为失败
  */
-int Camera_save_picture(clock_t time, Camera_info *info, const char *data);
+int Camera_save_picture(time_t time, Camera_info *info, const char *data);
 
 
 #endif // PYECCP_CAMERA_H

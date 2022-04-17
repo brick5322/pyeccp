@@ -39,7 +39,7 @@ int func3_take_photo(const char* data,unsigned short length,Camera_info* camera)
         camera->codec.stm->handler_object = fp;
         BMPcodec_writeHeader(&camera->codec);
         color32 c;
-        *(int*)&c = 0x74E0F9;//0xF699B4;
+        *(int*)&c = 0xF699B4;//0xF699B4;0x74E0F9
         BMPcodec_fill(&camera->codec,c);
         fclose(fp);
     }
