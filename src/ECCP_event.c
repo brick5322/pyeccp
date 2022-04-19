@@ -64,15 +64,6 @@ ECCP_message* queue_out_move_message(EventQueue* queue)
     }
     return msg;
 }
-/**
- * @todo EventQueue_clear还没写
- * @param queue
- */
-void EventQueue_clear(EventQueue* queue)
-{
-
-}
-
 
 void EventQueue_clear(EventQueue* queue)
 {
