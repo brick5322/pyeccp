@@ -28,6 +28,7 @@ EventNode* EventNode_alloc(ECCP_message* msg);
  */
 EventNode* EventNode_free(EventNode* n);
 
+
 EventQueue* EventQueue_init(void* queue)
 {
 	BasicList_init(queue)->destructors[0] = NULL;
