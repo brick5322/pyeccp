@@ -11,54 +11,52 @@
 typedef int SOCKET;
 #endif
 /**
- * @todo ÕâÀïÒª¿çwindowsºÍLinuxÆ½Ì¨
+ * @todo ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½windowsï¿½ï¿½LinuxÆ½Ì¨
  * 
  */
 
 /**
- * @brief ³õÊ¼»¯²»Í¬²Ù×÷ÏµÍ³»·¾³ÏÂµÄÍøÂç
+ * @brief ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½ï¿½ï¿½ï¿½Âµï¿½ï¿½ï¿½ï¿½ï¿½
  * @todo
  */
 void NetWork_Initialize();
 
 /**
- * @brief ½áÊøÍøÂç»·¾³£¬Óë @ref NetWork_Initialize ³É¶Ôµ÷ÓÃ
+ * @brief ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ç»·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ @ref NetWork_Initialize ï¿½É¶Ôµï¿½ï¿½ï¿½
  * @todo
  */
 void NetWork_Finialize();
 
 /**
- * @brief ÉèÖÃ¼àÌıUDP¶Ë¿ÚµÄÌ×½Ó×Ö
+ * @brief è®¾ç½®ç›‘å¬UDPç«¯å£çš„å¥—æ¥å­—
  *
  * @todo
- * @param port Òª¼àÌıµÄ¶Ë¿Ú
- * @param max_access ×î´ó½ÓÈëÁ¿
- * @return SOCKET ¿ªÆôµÄÌ×½Ó×Ö
+ * @param port è¦ç›‘å¬çš„ç«¯å£
+ * @param max_access æœ€å¤§æ¥å…¥é‡
+ * @return SOCKET å¼€å¯çš„å¥—æ¥å­—
  */
 SOCKET set_listen(unsigned short port,int max_access);
-<<<<<<< HEAD
+
 
 /**
- * @brief ·Ç×èÈûµÄ½ÓÊÕsocketµÄUDP°ü£¬ÔÚmsgÉÏ¹¹ÔìÎªECCP_message£¬
- * \n ²¢ÒÔµã·ÖÊ®½øÖÆµÄ×Ö·û´®µÄ¸ñÊ½½«IPµØÖ·ºÍUDP¶Ë¿Ú±£´æµ½IP_bufferÖĞ
- * @todo 
- * @param socket 
- * @param msg 
- * @param IP_buffer µã·ÖÊ®½øÖÆ Èç¡°127.0.0.1:8080¡±
- * @return int 
- */
-int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer);
-
-/**
- * @brief ·¢ËÍÒ»¸öECCP±¨ÎÄµ½Ö¸¶¨IP:Port
+ * @brief éé˜»å¡çš„æ¥æ”¶socketçš„UDPåŒ…ï¼Œåœ¨msgä¸Šæ„é€ ä¸ºECCP_messageï¼Œ
+ * \n å¹¶ä»¥ç‚¹åˆ†åè¿›åˆ¶çš„å­—ç¬¦ä¸²çš„æ ¼å¼å°†IPåœ°å€å’ŒUDPç«¯å£ä¿å­˜åˆ°IP_bufferä¸­
  * @todo
- * @param socket 
- * @param ip 
- * @param msg 
- * @return int 
+ * @param socket
+ * @param msg
+ * @param IP_buffer ç‚¹åˆ†åè¿›åˆ¶ å¦‚â€œ127.0.0.1:8080â€
+ * @return int
  */
-=======
 int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer);
->>>>>>> 447d461fffc9410aa8cd091e42e189d65f9c4199
+
+
+/**
+ * @brief å‘é€ä¸€ä¸ªECCPæŠ¥æ–‡åˆ°æŒ‡å®šIP:Port
+ * @todo
+ * @param socket
+ * @param ip
+ * @param msg
+ * @return int
+ */
 int send_eccp_msg(SOCKET socket,const char *ip,ECCP_message* msg);
 #endif //PYECCP_ECCP_NET_H
