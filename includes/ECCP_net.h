@@ -5,6 +5,7 @@
 #ifndef PYECCP_ECCP_NET_H
 #define PYECCP_ECCP_NET_H
 
+#include <pcap/socket.h>
 #include "ECCP.h"
 
 #ifdef __linux

@@ -3,12 +3,13 @@
 //
 #ifdef MACOS
 #include <pcap/socket.h>
+#include <unistd.h>
 #elif defined(__linux)
 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <unistd.h>
 #elif defined(WIN32)
 
 #endif
@@ -17,6 +18,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 
 #define SERV_PORT 4399
 #define MAXLINE 1024
@@ -28,6 +30,7 @@
  * @param port 要监听的端口
  * @param max_access 最大接入量
  * @return SOCKET 开启的套接字 错误则返回-1
+ * 考虑一个问题，是否进出可以开启同一个端口，udp发送的时候是否需要bind端口
  */
 SOCKET set_listen(unsigned short port, int max_access) {
     int sockfd;
@@ -36,14 +39,18 @@ SOCKET set_listen(unsigned short port, int max_access) {
 
     sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
-    bzero(&serveraddr, sizeof serveraddr);
     serveraddr.sin_family = AF_INET;
-    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serveraddr.sin_port = port;
-    htonl(port);
+    serveraddr.sin_addr.s_addr = INADDR_ANY;
+    serveraddr.sin_port = htons(port);  // 绑定一个端口号
 
 
-    bind(sockfd, (struct sockaddr *) &serveraddr, sizeof serveraddr);
+    // 绑定socket对象于通信链接
+    int ret = bind(sockfd, (struct sockaddr *) &serveraddr, sizeof(serveraddr));
+    if (ret < 0) {
+        printf("bind fail\n");
+        close(sockfd);
+        return -1;
+    }
 
 
     return sockfd;
@@ -60,13 +67,14 @@ SOCKET set_listen(unsigned short port, int max_access) {
  * @return msg的长度 返回的是msg的长度
  */
 int recv_eccp_msg(SOCKET socket, ECCP_message *msg, char *IP_buffer) {
-    struct sockaddr_in cliaddr;
 
+    struct sockaddr_in cliaddr;
+    socklen_t len = sizeof(cliaddr);
 
     int n;
-    socklen_t len;
 
-    n = recvfrom(socket, msg + 1, ECCP_buffersz, 0, (struct sockaddr *) &cliaddr, &len);
+
+    n = (int) recvfrom(socket, &((char *) msg)[1], ECCP_buffersz - 1, 0, (struct sockaddr *) &cliaddr, &len);
     sprintf(IP_buffer, "%s:%d", inet_ntoa(cliaddr.sin_addr), ntohs(cliaddr.sin_port));
 
     return n;
@@ -84,30 +92,27 @@ int recv_eccp_msg(SOCKET socket, ECCP_message *msg, char *IP_buffer) {
 int send_eccp_msg(SOCKET socket, const char *ip, ECCP_message *msg) {
     struct sockaddr_in server_addr;
     in_port_t port;
-    char *IP_address;
+    char IP_address[16];
+    size_t TotalDatalen = 0;
+    int i = 0;
+    for (i = 0; i < 22; ++i) {
+        if (ip[i] == ':') {
+            IP_address[i] = 0;
+            break;
+        } else
+            IP_address[i] = ip[i];
+    }
+    //IP_address = strtok_r(ip, ":", &ip);
+    port = atoi(ip + i + 1);
 
-    // 解析ip
-    char *rest = ip;
-    char *s = ":";
-    IP_address = strtok_r(rest, s, &rest);
-    port = atoi(strtok_r(rest, s, &rest));
 
-
-
-    //  清零操作
-    memset(&server_addr, 0, sizeof server_addr);
-
-    // 基础发送数据
+    TotalDatalen = sizeof(ECCP_message) + msg->length;
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(port);
-    inet_pton(AF_INET, IP_address, &server_addr.sin_addr);
+    server_addr.sin_addr.s_addr = inet_addr(IP_address);
 
-//    if(sendto(socket, msg, sizeof msg, 0, (struct sockaddr *)&server_addr, sizeof server_addr))
-//        return 0;
-//    else
-//        return -1;
 
-    return sendto(socket, msg + 1, msg->length + 3, 0, (struct sockaddr *) &server_addr, sizeof server_addr) ? 0 : -1;
-
+    return sendto(socket, &((char *) msg)[1], TotalDatalen - 1, 0, (struct sockaddr *) &server_addr, sizeof server_addr)
+           ? 0 : -1;
 
 }
