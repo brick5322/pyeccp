@@ -23,17 +23,17 @@ PyDictObject* listen_dict;
 
 PyAPI_DATA(PyTypeObject) PyCamera_Type;
 
-static PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj); //用报异常来封掉构造
-static PyCameraObject* PyCameraObject_private_new(PyTypeObject* obj);
-static PyObject* PyCamera_repr(PyCameraObject* obj);
-static PyObject* PyCamera_str(PyCameraObject* obj);
-static PyObject* PyCameraObject_get_ID(PyCameraObject*);
-static PyObject* PyCameraObject_get_filePath(PyCameraObject*);
-static PyObject* PyCameraObject_set_filePath(PyCameraObject*, PyObject* args);
-static PyObject* PyCameraObject_getPic(PyCameraObject*);
-static PyObject* PyCameraObject_startPicStream(PyCameraObject*, PyObject* args);
-static PyObject* PyCameraObject_finishPicStream(PyCameraObject*);
-static void PyCameraObject_dealloc(PyCameraObject*);
-static PyObject* PyECCPserver_exec(PyObject * self, PyObject* args, PyObject* kwargs);
+ PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj); //用报异常来封掉构造
+ PyCameraObject* PyCameraObject_private_new(PyTypeObject* obj);
+ PyObject* PyCamera_repr(PyCameraObject* obj);
+ PyObject* PyCamera_str(PyCameraObject* obj);
+ PyObject* PyCameraObject_get_ID(PyCameraObject*);
+ PyObject* PyCameraObject_get_filePath(PyCameraObject*);
+ PyObject* PyCameraObject_set_filePath(PyCameraObject*, PyObject* args);
+ PyObject* PyCameraObject_getPic(PyCameraObject*);
+ PyObject* PyCameraObject_startPicStream(PyCameraObject*, PyObject* args);
+ PyObject* PyCameraObject_finishPicStream(PyCameraObject*);
+ void PyCameraObject_dealloc(PyCameraObject*);
+ PyObject* PyECCPserver_exec(PyObject * self, PyObject* args, PyObject* kwargs);
 
 #endif //PYECCP_PYCAMERAOBJECT_H

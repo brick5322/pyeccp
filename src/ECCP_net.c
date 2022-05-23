@@ -1,12 +1,19 @@
 //
 // Created by bric on 22-4-15.
 //
-
+#ifdef MACOS
 #include <pcap/socket.h>
+#elif defined(__linux)
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#elif defined(WIN32)
+
+#endif
 #include "ECCP_net.h"
 #include <string.h>
-#include <printf.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define SERV_PORT 4399
 #define MAXLINE 1024

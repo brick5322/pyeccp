@@ -1,3 +1,5 @@
+#pragma once
+
 //
 // Created by bric on 2022/4/12.
 //
@@ -6,82 +8,58 @@
 #define PYECCP_ECCP_EVENT_H
 
 #include <ECCP.h>
+#include "List.h"
+#include "Node.h"
 
-typedef struct EventQueue EventQueue;
-typedef struct EventNode EventNode;
 
 /**
  * @class EventQueue
- * @brief ç›¸æœºçš„äº‹ä»¶é˜Ÿåˆ—
- * @details ä¼šè¢« @ref PyCameraObject ç»§æ‰¿
+ * @brief Ïà»úµÄÊÂ¼ş¶ÓÁĞ
+ * @details »á±» @ref PyCameraObject ¼Ì³Ğ
  */
-struct EventQueue{
-    EventNode* headNode;
-    EventNode* tailNode;
-    int length;
+typedef struct EventQueue EventQueue;
+
+struct EventQueue
+{
+    BasicList_Head;
+    Destructor destructors;
 };
-/**
- * @brief ç›¸æœºçš„äº‹ä»¶ç»“ç‚¹
- */
-struct EventNode{
-    ECCP_message * msg_data;
-    EventNode* next;
-};
-/**
- * @brief åˆå§‹åŒ–queue
- * @param queue è¦è¢«åˆå§‹åŒ–çš„é˜Ÿåˆ—
- */
-void queue_Init(EventQueue* queue);
-
 
 /**
- * @brief æ„é€ ä¸€ä¸ªæ–°çš„ECCPäº‹ä»¶ç½®å…¥é˜Ÿåˆ—ä¸­
- * 
- * @param queue è¦è¢«ç½®å…¥çš„é˜Ÿåˆ—
- * @param length ECCPäº‹ä»¶é•¿åº¦ï¼ˆByteï¼‰
- * @return æ–°æ„é€ çš„ECCPäº‹ä»¶æŒ‡é’ˆ
+ * @brief Ïà»úµÄÊÂ¼ş½áµã
  */
-ECCP_message* queue_in_new_message(EventQueue* queue, int length);
+typedef struct Node EventNode;
 
 /**
- * @brief å°†ä¸€ä¸ªECCPäº‹ä»¶ç½®å…¥é˜Ÿåˆ—ä¸­
- * 
- * @param queue è¦è¢«ç½®å…¥çš„é˜Ÿåˆ—
- * @param msg ä¸€ä¸ªå·²ç»æ„é€ çš„ECCPäº‹ä»¶
+ * @brief ³õÊ¼»¯queue
+ * @param queue Òª±»³õÊ¼»¯µÄ¶ÓÁĞ
  */
-void queue_in_message(EventQueue* queue, ECCP_message* msg);
+EventQueue* EventQueue_init(void* queue);
 
 /**
- * @brief ä»é˜Ÿåˆ—ä¸­å–å‡ºä¸€ä¸ªECCPäº‹ä»¶
- * 
- * @param queue è¦è¢«å–å‡ºçš„é˜Ÿåˆ—
- * @return å–å‡ºçš„ECCPäº‹ä»¶æŒ‡é’ˆ 
+ * @brief ½«Ò»¸öECCPÊÂ¼şÖÃÈë¶ÓÁĞÖĞ
+ *
+ * @param queue Òª±»ÖÃÈëµÄ¶ÓÁĞ
+ * @param msg Ò»¸öÒÑ¾­¹¹ÔìµÄECCPÊÂ¼ş
  */
-ECCP_message* queue_out_move_message(EventQueue* queue);
-void EventQueue_clear(EventQueue* queue);
+void EventQueue_in(EventQueue* queue, ECCP_message* msg);
 
 /**
- * @brief æ¸…é™¤é˜Ÿåˆ—ä¸­æ‰€æœ‰çš„äº‹ä»¶èŠ‚ç‚¹
- * 
- * @param queue è¦è¢«æ¸…ç©ºçš„é˜Ÿåˆ—
+ * @brief ´Ó¶ÓÁĞÖĞÈ¡³öÒ»¸öECCPÊÂ¼ş
+ *
+ * @param queue Òª±»È¡³öµÄ¶ÓÁĞ
+ * @return È¡³öµÄECCPÊÂ¼şÖ¸Õë
+ */
+ECCP_message* EventQueue_out(EventQueue* queue);
+
+/**
+ * @brief Çå³ı¶ÓÁĞÖĞËùÓĞµÄÊÂ¼ş½Úµã
+ *
+ * @param queue Òª±»Çå¿ÕµÄ¶ÓÁĞ
  */
 void EventQueue_clear(EventQueue* queue);
 
-/**
- * @brief æ„é€ ECCPäº‹ä»¶ç»“ç‚¹
- * 
- * @param msg ECCPäº‹ä»¶æŒ‡é’ˆ
- * @return æ„é€ çš„ECCPäº‹ä»¶ç»“ç‚¹
- */
-EventNode* EventNode_alloc(ECCP_message* msg);
 
-/**
- * @brief è¦é‡Šæ”¾çš„ECCPäº‹ä»¶ç»“ç‚¹
- * 
- * @param n ECCPäº‹ä»¶æŒ‡é’ˆ
- * @return è¢«é‡Šæ”¾çš„ä¸‹ä¸€ä¸ªç»“ç‚¹
- */
-EventNode* EventNode_free(EventNode* n);
 
 void ECCP_set_message_1(EventQueue* queue);
 void ECCP_set_message_2(EventQueue* queue);

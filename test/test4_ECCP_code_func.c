@@ -9,7 +9,7 @@
 
 extern unsigned int mem_to_file(stream *stm, unsigned int size);
 
-int test4_ECCP_code_func()
+int main()
 {
     char buffer[8207];
 

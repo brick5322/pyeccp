@@ -7,7 +7,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-int test2_Camera()
+int main()
 {
     Camera_info inf;
 

@@ -1,112 +1,100 @@
-//
-// Created by bric on 2022/4/12.
-//
-
-#include <ECCP_event.h>
+#include "ECCP_event.h"
+#include <time.h>
 #include <stdlib.h>
 
-EventNode* EventNode_alloc(ECCP_message* msg)
+
+/**
+ * @brief ����һ���µ�ECCP�¼����������
+ *
+ * @param queue Ҫ������Ķ���
+ * @param length ECCP�¼����ȣ�Byte��
+ * @return �¹����ECCP�¼�ָ��
+ */
+ECCP_message* queue_in_new_message(EventQueue* queue, int length);
+
+/**
+ * @brief ����ECCP�¼����
+ *
+ * @param msg ECCP�¼�ָ��
+ * @return �����ECCP�¼����
+ */
+EventNode* EventNode_alloc(ECCP_message* msg);
+
+/**
+ * @brief Ҫ�ͷŵ�ECCP�¼����
+ *
+ * @param n ECCP�¼�ָ��
+ * @return ���ͷŵ���һ�����
+ */
+EventNode* EventNode_free(EventNode* n);
+
+EventQueue* EventQueue_init(void* queue)
 {
-    EventNode* ret = malloc(sizeof(EventNode));
-    ret->msg_data = msg;
-    ret->next = NULL;
-    return ret;
+	BasicList_init(queue)->destructors[0] = NULL;
+    return queue;
 }
 
-EventNode* EventNode_free(EventNode* n)
+void EventQueue_in(EventQueue* queue, ECCP_message* msg)
 {
-    EventNode* ret = n->next;
-    free(n);
-    return ret;
+	Node_getData(ECCP_message*, BasicList_queue_in(queue, 0, sizeof(ECCP_message*))) = msg;
 }
 
-
-void queue_Init(EventQueue* queue)
+ECCP_message* EventQueue_out(EventQueue* queue)
 {
-queue->headNode=NULL;
-queue->tailNode=NULL;
-queue->length = 0;
-}
-
-ECCP_message* queue_in_new_message(EventQueue* queue, int msg_length)
-{
-    ECCP_message *msg = malloc(msg_length);
-
-    if(queue->length)
-        queue->tailNode = queue->tailNode->next = EventNode_alloc(msg);
-    else
-        queue->tailNode = queue->headNode = EventNode_alloc(msg);
-
-    queue->length++;
-    return msg;
-}
-
-void queue_in_message(EventQueue *queue, ECCP_message *msg) {
-
-    if(queue->length)
-        queue->tailNode = queue->tailNode->next = EventNode_alloc(msg);
-    else
-        queue->tailNode = queue->headNode = EventNode_alloc(msg);
-
-    queue->length++;
-}
-
-ECCP_message* queue_out_move_message(EventQueue* queue)
-{
-    ECCP_message* msg = NULL;
-    if(queue->length)
-    {
-        EventNode* head = queue->headNode;
-        msg = head->msg_data;
-        queue->headNode = head->next;
-        queue->length--;
-        EventNode_free(head);
-    }
-    return msg;
+	Node* node = BasicList_queue_out(queue);
+	ECCP_message* ret = Node_getData(ECCP_message*, node);
+	Node_free(node, &queue->destructors);
+	return ret;
 }
 
 void EventQueue_clear(EventQueue* queue)
 {
-    int len = queue->length;
-    EventNode* iterator = queue->headNode;
-    for(int i = 0;i<len;i++)
-        iterator = EventNode_free(iterator);
+	BasicList_clear(queue);
 }
-
 
 void ECCP_set_message_1(EventQueue* queue)
 {
-    ECCP_message* msg = queue_in_new_message(queue,sizeof(clock_t)+4);
-    msg->length = sizeof(clock_t);
-    msg->func_code = 1;
-    *(clock_t*)msg->data = time(0);
+    Node* current = BasicList_queue_in(queue, 0, sizeof(ECCP_message*));
+	ECCP_message* curmsg = malloc(sizeof(ECCP_message)+sizeof(clock_t));
+    Node_getData(ECCP_message*, current) = curmsg;
+	curmsg->length = sizeof(clock_t);
+	curmsg->func_code = 1;
+	*(clock_t*)curmsg->data = time(0);
 }
 
 void ECCP_set_message_2(EventQueue* queue)
 {
-    ECCP_message* msg = queue_in_new_message(queue,4);
-    msg->length = 0;
-    msg->func_code = 2;
+	Node* current = BasicList_queue_in(queue, 0, sizeof(ECCP_message*));
+    ECCP_message* curmsg = malloc(sizeof(ECCP_message));
+    Node_getData(ECCP_message*, current) = curmsg;
+    curmsg->length = 0;
+	curmsg->func_code = 2;
 }
 
 void ECCP_set_message_3(EventQueue* queue)
 {
-    ECCP_message* msg = queue_in_new_message(queue,4);
-    msg->length = 0;
-    msg->func_code = 3;
+	Node* current = BasicList_queue_in(queue, 0, sizeof(ECCP_message*));
+    ECCP_message* curmsg = malloc(sizeof(ECCP_message));
+    Node_getData(ECCP_message*, current) = curmsg;	curmsg->length = 0;
+    curmsg->length = 0;
+	curmsg->func_code = 3;
 }
 
 void ECCP_set_message_4(EventQueue* queue, int duration)
 {
-    ECCP_message* msg = queue_in_new_message(queue,4+sizeof(unsigned int));
-    msg->length = 0;
-    msg->func_code = 4;
-    *(int*)msg->data = duration;
+	Node* current = BasicList_queue_in(queue, 0, sizeof(ECCP_message*));
+    ECCP_message* curmsg = malloc(sizeof(ECCP_message) + sizeof(uint32_t));
+    Node_getData(ECCP_message*, current) = curmsg;	curmsg->length = 0;
+    curmsg->length = sizeof(uint32_t);
+	curmsg->func_code = 4;
+	*(int*)curmsg->data = duration;
 }
 
 void ECCP_set_message_6(EventQueue* queue)
 {
-    ECCP_message* msg = queue_in_new_message(queue,4);
-    msg->length = 0;
-    msg->func_code = 6;
+	Node* current = BasicList_queue_in(queue, 0, sizeof(ECCP_message*));
+    ECCP_message* curmsg = malloc(sizeof(ECCP_message));
+    Node_getData(ECCP_message*, current) = curmsg;	curmsg->length = 0;
+    curmsg->length = 0;
+	curmsg->func_code = 6;
 }

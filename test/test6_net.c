@@ -1,7 +1,7 @@
 #include <ECCP.h>
 #include <ECCP_net.h>
 
-int test6_net()
+int main()
 {
     /**
      * @todo 测试net

@@ -294,7 +294,7 @@ struct EventQueue{
 };
 
 ECCP_message* queue_in_new_message(EventQueue* queue, int length);
-ECCP_message* queue_out_move_message(EventQueue* queue);
+ECCP_message* EventQueue_out(EventQueue* queue);
 
 EventNode* EventNode_alloc(ECCP_message* msg);
 EventNode* EventNode_free(EventNode* n);

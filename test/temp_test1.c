@@ -3,7 +3,7 @@
 //
 #include <Python.h>
 
-int temp_test1()
+int main()
 {
     Py_Initialize();
     PyObject* os_path = PyImport_ImportModule("os.path");

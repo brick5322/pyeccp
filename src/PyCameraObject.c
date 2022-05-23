@@ -16,13 +16,13 @@ int isDir(const char *filepath) {
     return PyObject_CallFunction(PyDict_GetItemString(PyModule_GetDict(obj), "isdir"), "s", filepath)==Py_True;
 }
 
-static PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj)
+ PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj)
 {
     PyErr_SetString(PyExc_PermissionError,"The camera object is not allowed to construct by this way.");
     return NULL;
 }
 
-static PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
+ PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
 {
     PyCameraObject *ret = PyObject_New(PyCameraObject,self);
     if(!ret)
@@ -30,11 +30,11 @@ static PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
         PyErr_SetString(PyExc_MemoryError,"A Camera has access into the system,but connot alloc a Camera Object for it.");
         return NULL;
     }
-    queue_Init(&ret->event);
+    EventQueue_init(&ret->event);
     return ret;
 }
 
-static PyObject* PyCamera_repr(PyCameraObject* obj)
+ PyObject* PyCamera_repr(PyCameraObject* obj)
 {
     char buf[sizeof("<class 'Camera'> with ID = ")+32];
     sprintf(buf, "<class 'Camera'> with ID = ");
@@ -42,17 +42,17 @@ static PyObject* PyCamera_repr(PyCameraObject* obj)
     return _PyUnicode_FromASCII(buf, sizeof("<class 'Camera'> with ID = ")+31);
 }
 
-static PyObject* PyCamera_str(PyCameraObject* obj)
+ PyObject* PyCamera_str(PyCameraObject* obj)
 {
     return _PyUnicode_FromASCII(obj->info.staticID, 32);
 }
 
-static PyObject* PyCameraObject_get_ID(PyCameraObject* obj)
+ PyObject* PyCameraObject_get_ID(PyCameraObject* obj)
 {
     return _PyUnicode_FromASCII(obj->info.staticID,32);
 }
 
-static PyObject* PyCameraObject_get_filePath(PyCameraObject* obj)
+ PyObject* PyCameraObject_get_filePath(PyCameraObject* obj)
 {
     int len = strlen(obj->info.filepath);
     if(len)
@@ -61,7 +61,7 @@ static PyObject* PyCameraObject_get_filePath(PyCameraObject* obj)
         Py_RETURN_NONE;
 }
 
-static PyObject* PyCameraObject_set_filePath(PyCameraObject* obj,PyObject* args)
+ PyObject* PyCameraObject_set_filePath(PyCameraObject* obj,PyObject* args)
 {
     const char *buffer = NULL;
     if (!PyArg_ParseTuple(args, "s", &buffer))
@@ -82,13 +82,13 @@ static PyObject* PyCameraObject_set_filePath(PyCameraObject* obj,PyObject* args)
 }
 
 
-static PyObject* PyCameraObject_getPic(PyCameraObject* obj)
+ PyObject* PyCameraObject_getPic(PyCameraObject* obj)
 {
     ECCP_set_message_3(&obj->event);
     Py_RETURN_NONE;
 }
 
-static PyObject* PyCameraObject_startPicStream(PyCameraObject* obj,PyObject* args)
+ PyObject* PyCameraObject_startPicStream(PyCameraObject* obj,PyObject* args)
 {
     int duration = 0;
     if (!PyArg_ParseTuple(args, "i", &duration))
@@ -97,19 +97,19 @@ static PyObject* PyCameraObject_startPicStream(PyCameraObject* obj,PyObject* arg
     Py_RETURN_NONE;
 }
 
-static PyObject* PyCameraObject_finishPicStream(PyCameraObject* obj)
+ PyObject* PyCameraObject_finishPicStream(PyCameraObject* obj)
 {
     ECCP_set_message_6(&obj->event);
     Py_RETURN_NONE;
 }
-static void PyCameraObject_dealloc(PyCameraObject* obj)
+ void PyCameraObject_dealloc(PyCameraObject* obj)
 {
     EventQueue_clear(&obj->event);
     PyObject_DEL(obj);
 }
 
 
-static PyObject* exec(PyObject * self,PyObject* args,PyObject* kwargs)
+ PyObject* PyECCPserver_exec(PyObject * self,PyObject* args,PyObject* kwargs)
 {
     PyObject* callback_func;
     int port;
@@ -186,9 +186,9 @@ static PyObject* exec(PyObject * self,PyObject* args,PyObject* kwargs)
             int elength = camera->event.length;
             for(int nb_list = 0;nb_list<elength;nb_list++)
             {
-                ECCP_message *Emsg = queue_out_move_message(&camera->event);
+                ECCP_message *Emsg = EventQueue_out(&camera->event);
                 if(send_eccp_msg(socket,IP_buffer,Emsg))
-                    queue_in_message(&camera->event,Emsg);
+                    EventQueue_in(&camera->event, Emsg);
                 else
                     free(Emsg);
             }
