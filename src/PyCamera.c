@@ -77,13 +77,15 @@ PyMODINIT_FUNC PyInit_PyECCPserver(void)
     if (PyType_Ready(&PyCamera_Type) < 0)
         return NULL;
     PyObject* module = PyModule_Create(&PyECCPserver_Module);
-
     if (!module)
+        return NULL;
+    listen_dict = (PyDictObject*)PyDict_New();
+    if (!listen_dict)
         return NULL;
     Py_INCREF(&PyCamera_Type);
 
-    PyModule_AddObject(module, "camera", &PyCamera_Type);
-    PyModule_AddObject(module, "list_dict", listen_dict);
+    PyModule_AddObject(module, "camera", (PyObject *) &PyCamera_Type);
+    PyModule_AddObject(module, "list_dict", (PyObject *) listen_dict);
     PyModule_AddFunctions(module,PyECCPserver_methods);
 
     PyModule_AddStringConstant(module, "__author__", "brick");
