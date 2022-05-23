@@ -15,7 +15,6 @@
 /**
  * @brief 设置监听UDP端口的套接字
  *
- * @todo
  * @param port 要监听的端口
  * @param max_access 最大接入量
  * @return SOCKET 开启的套接字 错误则返回-1
@@ -73,12 +72,11 @@ int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer)
     int n;
     socklen_t len;
 
-    msg = (ECCP_message *) malloc(10240);
-    memset(msg, 0, 10240);
+    // msg = (ECCP_message *) malloc(10240);
+    //  memset(msg, 0, 10240);
 
-    IP_buffer = malloc(30);
+    // IP_buffer = malloc(30);
     n = recvfrom(socket, msg, MAXLINE, 0, (struct sockaddr* )&cliaddr, &len);
-    // 线程不安全！！！
     sprintf(IP_buffer, "%s:%d", inet_ntoa(cliaddr.sin_addr),ntohs(cliaddr.sin_port));
 
     return n;
@@ -87,7 +85,7 @@ int recv_eccp_msg(SOCKET socket,ECCP_message* msg,char* IP_buffer)
 
 
 /**
- * @todo 这里有个函数没写
+
  * @param socket 提供的socket
  * @param ip 要传达的IP地址，点分十进制“192.168.0.1:8080”
  * @param msg 要传出的message
@@ -103,7 +101,7 @@ int send_eccp_msg(SOCKET socket,const char *ip,ECCP_message* msg)
     char *rest = ip;
     char *s = ":";
     IP_address = strtok_r(rest, s, &rest);
-    port = atoi(strtok_r(rest, s, rest));
+    port = atoi(strtok_r(rest, s, &rest));
 
 
 
@@ -118,8 +116,4 @@ int send_eccp_msg(SOCKET socket,const char *ip,ECCP_message* msg)
     if(sendto(socket, msg, sizeof msg, 0, (struct sockaddr *)&server_addr, sizeof server_addr))
         return 0;
 
-//    if(socket)
-//        return 1;
-//    else
-//        return 0;
 }
