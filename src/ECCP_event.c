@@ -12,22 +12,6 @@
  */
 ECCP_message* queue_in_new_message(EventQueue* queue, int length);
 
-/**
- * @brief ����ECCP�¼����
- *
- * @param msg ECCP�¼�ָ��
- * @return �����ECCP�¼����
- */
-EventNode* EventNode_alloc(ECCP_message* msg);
-
-/**
- * @brief Ҫ�ͷŵ�ECCP�¼����
- *
- * @param n ECCP�¼�ָ��
- * @return ���ͷŵ���һ�����
- */
-EventNode* EventNode_free(EventNode* n);
-
 
 EventQueue* EventQueue_init(void* queue)
 {

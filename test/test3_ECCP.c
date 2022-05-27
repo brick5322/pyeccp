@@ -19,7 +19,7 @@ int fun2(const char* data,unsigned short length,Camera_info* camera)
     return 0;
 }
 
-int main()
+int test3_ECCP()
 {
     char msg[]={0,0, 14, 0, 'H','e','l','l','o',' ','W','o','r','l','d','!','\n','\0'};
     char msg2[]={0,1, 13, 0, 'H','e','l','l','o',' ','E','C','C','P','!','\n','\0'};

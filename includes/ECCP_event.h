@@ -8,8 +8,8 @@
 #define PYECCP_ECCP_EVENT_H
 
 #include <ECCP.h>
-#include "List.h"
-#include "Node.h"
+#include <List.h>
+#include <Node.h>
 
 
 /**

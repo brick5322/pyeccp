@@ -9,24 +9,15 @@
 
 #ifdef __linux
 typedef int SOCKET;
-#ifdef  MACOS
+#elif defined(MACOS)
 #include <pcap/socket.h>
+#elif defined(_WIN32)
+#include <WinSock2.h>
+WSADATA wsadata;
 #endif
-/**
- * @todo ����Ҫ��windows��Linuxƽ̨
- * 
- */
 
-/**
- * @brief ��ʼ����ͬ����ϵͳ�����µ�����
- * @todo
- */
 void NetWork_Initialize();
 
-/**
- * @brief �������绷������ @ref NetWork_Initialize �ɶԵ���
- * @todo
- */
 void NetWork_Finialize();
 
 /**

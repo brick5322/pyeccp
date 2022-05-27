@@ -22,6 +22,16 @@
 #define MAXLINE 1024
 
 
+void NetWork_Initialize()
+{
+    WSAStartup(MAKEWORD(2, 0), &wsadata);
+}
+
+void NetWork_Finialize()
+{
+    WSACleanup();
+}
+
 /**
  * @brief 设置监听UDP端口的套接字
  *
@@ -67,7 +77,7 @@ SOCKET set_listen(unsigned short port, int max_access) {
 int recv_eccp_msg(SOCKET socket, ECCP_message *msg, char *IP_buffer) {
 
     struct sockaddr_in cliaddr;
-    socklen_t len = sizeof(cliaddr);
+    size_t len = sizeof(cliaddr);
 
     int n;
 
@@ -89,7 +99,7 @@ int recv_eccp_msg(SOCKET socket, ECCP_message *msg, char *IP_buffer) {
  */
 int send_eccp_msg(SOCKET socket, const char *ip, ECCP_message *msg) {
     struct sockaddr_in server_addr;
-    in_port_t port;
+    size_t port;
     char IP_address[16];
     size_t TotalDatalen = 0;
     int i = 0;

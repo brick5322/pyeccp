@@ -10,7 +10,7 @@ extern unsigned int mem_to_file(stream *stm, unsigned int size);
 
 
 
-int main()
+int test1_BMPcodec()
 {
     FILE *fp = fopen("testfile1.bmp", "wb+");
     stream* fstm = stream_alloc(0,mem_to_file,NULL);

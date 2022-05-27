@@ -16,13 +16,13 @@ int isDir(const char *filepath) {
     return PyObject_CallFunction(PyDict_GetItemString(PyModule_GetDict(obj), "isdir"), "s", filepath)==Py_True;
 }
 
- PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj)
+static PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj)
 {
     PyErr_SetString(PyExc_PermissionError,"The camera object is not allowed to construct by this way.");
     return NULL;
 }
 
- PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
+PyCameraObject* PyCameraObject_private_new(PyTypeObject* self)
 {
     PyCameraObject *ret = PyObject_New(PyCameraObject,self);
     if(!ret)
@@ -34,7 +34,7 @@ int isDir(const char *filepath) {
     return ret;
 }
 
- PyObject* PyCamera_repr(PyCameraObject* obj)
+static PyObject* PyCamera_repr(PyCameraObject* obj)
 {
     char buf[sizeof("<class 'Camera'> with ID = ")+32];
     sprintf(buf, "<class 'Camera'> with ID = ");
@@ -42,17 +42,17 @@ int isDir(const char *filepath) {
     return _PyUnicode_FromASCII(buf, sizeof("<class 'Camera'> with ID = ")+31);
 }
 
- PyObject* PyCamera_str(PyCameraObject* obj)
+static PyObject* PyCamera_str(PyCameraObject* obj)
 {
     return _PyUnicode_FromASCII(obj->info.staticID, 32);
 }
 
- PyObject* PyCameraObject_get_ID(PyCameraObject* obj)
+static PyObject* PyCameraObject_get_ID(PyCameraObject* obj)
 {
     return _PyUnicode_FromASCII(obj->info.staticID,32);
 }
 
- PyObject* PyCameraObject_get_filePath(PyCameraObject* obj)
+static PyObject* PyCameraObject_get_filePath(PyCameraObject* obj)
 {
     int len = strlen(obj->info.filepath);
     if(len)
@@ -61,7 +61,7 @@ int isDir(const char *filepath) {
         Py_RETURN_NONE;
 }
 
- PyObject* PyCameraObject_set_filePath(PyCameraObject* obj,PyObject* args)
+static PyObject* PyCameraObject_set_filePath(PyCameraObject* obj,PyObject* args)
 {
     const char *buffer = NULL;
     if (!PyArg_ParseTuple(args, "s", &buffer))
@@ -82,13 +82,13 @@ int isDir(const char *filepath) {
 }
 
 
- PyObject* PyCameraObject_getPic(PyCameraObject* obj)
+static PyObject* PyCameraObject_getPic(PyCameraObject* obj)
 {
     ECCP_set_message_3(&obj->event);
     Py_RETURN_NONE;
 }
 
- PyObject* PyCameraObject_startPicStream(PyCameraObject* obj,PyObject* args)
+static PyObject* PyCameraObject_startPicStream(PyCameraObject* obj,PyObject* args)
 {
     int duration = 0;
     if (!PyArg_ParseTuple(args, "i", &duration))
@@ -97,108 +97,71 @@ int isDir(const char *filepath) {
     Py_RETURN_NONE;
 }
 
- PyObject* PyCameraObject_finishPicStream(PyCameraObject* obj)
+static PyObject* PyCameraObject_finishPicStream(PyCameraObject* obj)
 {
     ECCP_set_message_6(&obj->event);
     Py_RETURN_NONE;
 }
- void PyCameraObject_dealloc(PyCameraObject* obj)
+static void PyCameraObject_dealloc(PyCameraObject* obj)
 {
     EventQueue_clear(&obj->event);
     PyObject_DEL(obj);
 }
 
 
- PyObject* PyECCPserver_exec(PyObject * self,PyObject* args,PyObject* kwargs)
+
+static PyMethodDef PyCamera_methods[] =
 {
-    PyObject* callback_func;
-    int port;
-    int max_access;
-    static time_t timer = 0;
-    if (!PyArg_ParseTuple(args, "ii", &port, &max_access))
-        return NULL;
-    if (port > 0xffff)
-    {
-        PyErr_SetString(PyExc_TypeError, "port(Arg1) should be an unsigned short value.");
-        return NULL;
-    }
-    if (callback_func = PyDict_GetItemString(kwargs, "callback"))
-    {
-        if (!PyCallable_Check(callback_func))
-        {
-            PyErr_SetString(PyExc_TypeError, "\"callback\" should be a function or lambda expression, which means it must be callable");
-            return NULL;
-        }
-    }
-    else
-    {
-        PyErr_SetString(PyExc_TypeError, "must have a keyword parameter whose key-name is \"callback\"");
-        return NULL;
-    }
-    const SOCKET socket = set_listen(port,max_access);
-    ECCP_message* msg_buffer = malloc(ECCP_buffersz);
-    int msg_length = 0;
-    char IP_buffer[20];
+        {"get_ID",(unaryfunc)PyCameraObject_get_ID,METH_NOARGS,"Get Camera ID."},
+        {"get_filePath",(unaryfunc)PyCameraObject_get_filePath,METH_NOARGS,"Get FilePath."},
+        {"set_filePath",(binaryfunc)PyCameraObject_set_filePath,METH_VARARGS,"Set FilePath."},
+        {"get_pic",(binaryfunc)PyCameraObject_getPic,METH_VARARGS,"Get a picture."},
+        {"start_picStream",(binaryfunc)PyCameraObject_startPicStream,METH_VARARGS,"start pic receiving stream with a fixed duration."},
+        {"stop_picStream",(unaryfunc)PyCameraObject_finishPicStream,METH_NOARGS,"stop pic receiving stream."},
+        {NULL,NULL,0,NULL}
+};
 
 
-    while(1)
-    {
-        PyCameraObject * camera = NULL;
-        //这里要取传过来的msg
-        for(int times;times<10;times++)
-            if(msg_length = recv_eccp_msg(socket,msg_buffer,IP_buffer))
-                if(!ECCP_is_Invalid(msg_buffer,msg_length))
-                    if (msg_buffer->func_code == 0x01) {
-                        camera = PyCameraObject_private_new(&PyCamera_Type);
-                        ECCP_message_exec(msg_buffer, &camera->info);
-                        if (PyObject_CallFunction(callback_func, "O", camera) == Py_False)
-                            Py_DECREF(camera);
-                        else
-                        {
-                            PyObject_Init((PyObject *) camera, &PyCamera_Type);
-                            PyDict_SetItemString((PyObject *) listen_dict, IP_buffer, (PyObject *) camera);
-                        }
-                    }
-                else {
-                        camera = (PyCameraObject *) PyDict_GetItemString((PyObject *) listen_dict, IP_buffer);
-                        ECCP_message_exec(msg_buffer, &camera->info);
-                    }
 
-        int timer_over = time(0)>timer;
-        PyObject * lAliveCamera = PyDict_Items((PyObject *) listen_dict);
-        Py_ssize_t len = PyList_Size(lAliveCamera);
-        //遍历listen_dict查询，删除掉线的camera，然后执行发送函数，添加心跳包
-        for(Py_ssize_t i = 0;i<len;i++)
-        {
-            PyObject * socket_camera_tuple = PyList_GetItem(lAliveCamera,i);
-            PyArg_ParseTuple(socket_camera_tuple,"sO",IP_buffer,camera);
-            if(!camera)
-            {
-                PyDict_DelItemString((PyObject *) listen_dict, IP_buffer);
-                continue;
-            }
-            if(time(0)>camera->info.TTL)
-            {
-                PyDict_DelItemString((PyObject *) listen_dict, IP_buffer);
-                Py_DECREF(camera);
-                continue;
-            }
-            int elength = camera->event.length;
-            for(int nb_list = 0;nb_list<elength;nb_list++)
-            {
-                ECCP_message *Emsg = EventQueue_out(&camera->event);
-                if(send_eccp_msg(socket,IP_buffer,Emsg))
-                    EventQueue_in(&camera->event, Emsg);
-                else
-                    free(Emsg);
-            }
-            if(timer_over)
-                ECCP_set_message_1(&camera->event);
-        }
-        if(timer_over)
-            timer = time(0)+TIMER_DURATION;
-        Py_DECREF(lAliveCamera);
-    }
-    free(msg_buffer);
-    Py_RETURN_NONE;
-}
+PyTypeObject PyCamera_Type =
+{
+        PyObject_HEAD_INIT(NULL)
+        "PyECCPserver.camera",
+        sizeof(PyCameraObject),
+        0,
+        (destructor)PyCameraObject_dealloc,
+        0,
+        0,
+        0,
+        0,
+        (reprfunc)PyCamera_repr,
+        0,
+        0,
+        0,
+        0,
+        0,
+        (reprfunc)PyCamera_str,
+        PyObject_GenericGetAttr,
+        PyObject_GenericSetAttr,
+        0,
+        Py_TPFLAGS_DEFAULT ,
+        "a driver for Camera worked on Internet",
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        PyCamera_methods,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        (newfunc)PyCameraObject_new_is_banned,
+        0,
+};

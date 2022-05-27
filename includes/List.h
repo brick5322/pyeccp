@@ -13,7 +13,7 @@ typedef void (*Destructor)(void*);
                                 uint32_t latestPos;\
                                 uint32_t length;\
                                 \
-                                uint8_t nb_types;\
+                                uint8_t nb_types\
 
 typedef struct BasicList
 {
