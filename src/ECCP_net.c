@@ -2,8 +2,6 @@
 // Created by bric on 22-4-15.
 //
 #ifdef MACOS
-#include <pcap/socket.h>
-#include <unistd.h>
 #elif defined(__linux)
 
 #include <sys/socket.h>

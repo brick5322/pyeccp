@@ -5,11 +5,12 @@
 #ifndef PYECCP_ECCP_NET_H
 #define PYECCP_ECCP_NET_H
 
-#include <pcap/socket.h>
 #include "ECCP.h"
 
 #ifdef __linux
 typedef int SOCKET;
+#ifdef  MACOS
+#include <pcap/socket.h>
 #endif
 /**
  * @todo ����Ҫ��windows��Linuxƽ̨
