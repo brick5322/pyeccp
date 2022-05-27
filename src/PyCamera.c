@@ -1,9 +1,13 @@
 #include <Python.h>
 #include <PyCameraObject.h>
+#ifdef _WIN32
 #include <WinSock2.h>
+#endif // _WIN32
 
-static PyObject* PyECCPserver_exec(PyObject* self, PyObject* args, PyObject* kwargs)
+
+static PyObject* PyECCPServer_exec(PyObject* self, PyObject* args, PyObject* kwargs)
 {
+    NetWork_Initialize();
     PyObject* callback_func;
     int port;
     int max_access;
@@ -38,7 +42,7 @@ static PyObject* PyECCPserver_exec(PyObject* self, PyObject* args, PyObject* kwa
     {
         PyCameraObject* camera = NULL;
         //这里要取传过来的msg
-        for (int times; times < 10; times++)
+        for (int times = 0; times < 10; times++)
             if (msg_length = recv_eccp_msg(socket, msg_buffer, IP_buffer))
                 if (!ECCP_is_Invalid(msg_buffer, msg_length))
                     if (msg_buffer->func_code == 0x01) {
@@ -93,29 +97,30 @@ static PyObject* PyECCPserver_exec(PyObject* self, PyObject* args, PyObject* kwa
         Py_DECREF(lAliveCamera);
     }
     free(msg_buffer);
+    NetWork_Finialize();
     Py_RETURN_NONE;
 }
 
-static PyMethodDef PyECCPserver_methods[] =
+static PyMethodDef PyECCPServer_methods[] =
 {
-        {"exec",(ternaryfunc)PyECCPserver_exec,METH_VARARGS | METH_KEYWORDS,"start ECC service"},
+        {"exec",(ternaryfunc)PyECCPServer_exec,METH_VARARGS | METH_KEYWORDS,"start ECC service"},
         {NULL,NULL,0,NULL}
 };
 
-static PyModuleDef PyECCPserver_Module =
+static PyModuleDef PyECCPServer_Module =
         {
                 PyModuleDef_HEAD_INIT,
-                "PyECCPserver",
+                "PyECCPServer",
                 "ECCP server module",
                 -1,
                 NULL,
         };
 
-PyMODINIT_FUNC PyInit_PyECCPserver(void)
+PyMODINIT_FUNC PyInit_PyECCPServer(void)
 {
     if (PyType_Ready(&PyCamera_Type) < 0)
         return NULL;
-    PyObject* module = PyModule_Create(&PyECCPserver_Module);
+    PyObject* module = PyModule_Create(&PyECCPServer_Module);
     if (!module)
         return NULL;
     listen_dict = (PyDictObject*)PyDict_New();
@@ -124,7 +129,7 @@ PyMODINIT_FUNC PyInit_PyECCPserver(void)
     Py_INCREF(&PyCamera_Type);
     PyModule_AddObject(module, "camera", (PyObject *) &PyCamera_Type);
     PyModule_AddObject(module, "list_dict", (PyObject *) listen_dict);
-    PyModule_AddFunctions(module,PyECCPserver_methods);
+    PyModule_AddFunctions(module,PyECCPServer_methods);
 
     PyModule_AddStringConstant(module, "__author__", "brick");
     PyModule_AddStringConstant(module, "__version__", "1.0.0");

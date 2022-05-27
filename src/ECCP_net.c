@@ -24,12 +24,16 @@
 
 void NetWork_Initialize()
 {
+#ifdef _WIN32
     WSAStartup(MAKEWORD(2, 0), &wsadata);
+#endif // _WIN32
 }
 
 void NetWork_Finialize()
 {
+#ifdef _WIN32
     WSACleanup();
+#endif // _WIN32
 }
 
 /**

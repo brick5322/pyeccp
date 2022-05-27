@@ -126,7 +126,7 @@ static PyMethodDef PyCamera_methods[] =
 PyTypeObject PyCamera_Type =
 {
         PyObject_HEAD_INIT(NULL)
-        "PyECCPserver.camera",
+        "PyECCPServer.camera",
         sizeof(PyCameraObject),
         0,
         (destructor)PyCameraObject_dealloc,
