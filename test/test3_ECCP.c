@@ -27,9 +27,9 @@ int test3_ECCP()
     vec_ECCP_FUNC(0|0x80,&fun);
     fun = fun2;
     vec_ECCP_FUNC(1|0x80,&fun);
-    if(!ECCP_is_Invalid((ECCP_message *) msg, sizeof(msg) - 1))
+    if(!ECCP_is_invalid((ECCP_message *) msg, sizeof(msg) - 1))
         ECCP_message_exec((ECCP_message *) msg, NULL);
-    if(!ECCP_is_Invalid((ECCP_message *) msg2, sizeof(msg2) - 1))
+    if(!ECCP_is_invalid((ECCP_message *) msg2, sizeof(msg2) - 1))
         ECCP_message_exec((ECCP_message *) msg2, NULL);
     return 0;
 }

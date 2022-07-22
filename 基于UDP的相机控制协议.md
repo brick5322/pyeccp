@@ -169,7 +169,7 @@ stateDiagram
 #### 0、上位机Python接口设计
 
 ```Python
-#module name: eccp
+#module name: PyECCPServer
 class Camera:
     pic_list = []
     
@@ -179,15 +179,15 @@ class Camera:
 
     def set_filePath(self, filePath: str) -> bool: ...
 
-    def getPic(self) -> None: ...
+    def get_pic(self) -> None: ...
 
-    def startPicStream(self, interval: int) -> None: ...
+    def start_picStream(self, interval: int) -> None: ...
 
-    def finishPicStream(self) -> None: ...
+    def stop_picStream(self) -> None: ...
 
 listen_dict = {}
 #这里保存Camera列表，exec会轮询这个列表中的Camera元素以接收并存储照片
-def PyECCPserver_exec(port: int, maxnb: int, {callback=func}) -> None: ...
+def exec(port: int, maxnb: int, {callback=func}) -> None: ...
 #这里的callback用作接入后的操作，形如def func(var:Camera) -> None
 #例：
 #pyeccp.PyECCPserver_exec(1111,0xffff,callback=func)
@@ -228,6 +228,9 @@ int recv_eccp_msg(SOCKET socket,ECCP_message* msg);
 int send_eccp_msg(SOCKET socket,ECCP_message* msg);
 //port小字节序
 SOCKET set_listen(unsigned short port,int max_access);
+//完成跨平台的目的
+void NetWork_Initialize();
+void NetWork_Finialize();
 ```
 
 
@@ -245,18 +248,20 @@ typedef struct PyCameraObject
 PyDictObject listen_dict;//k:v long long（sockaddr_in）/PyCameraObject
 
 //PyCamera_Type 内封装的函数
-static PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj); //用报异常来封掉构造
-static PyCameraObject* PyCameraObject_private_new(PyTypeObject* obj);
-static PyObject* PyCameraObject_get_ID(PyCameraObject*);
-static PyObject* PyCameraObject_get_filePath(PyCameraObject*);
-static PyObject* PyCameraObject_set_filePath(PyCameraObject*,PyObject** args);
-
-static PyObject* PyCameraObject_getPic(PyCameraObject*);
-static PyObject* PyCameraObject_startPicStream(PyCameraObject*,PyObject**args);
-static PyObject* PyCameraObject_finishPicStream(PyCameraObject*);
+ PyObject* PyCameraObject_new_is_banned(PyTypeObject* obj); //用报异常来封掉构造
+ PyCameraObject* PyCameraObject_private_new(PyTypeObject* obj);
+ PyObject* PyCamera_repr(PyCameraObject* obj);
+ PyObject* PyCamera_str(PyCameraObject* obj);
+ PyObject* PyCameraObject_get_ID(PyCameraObject*);
+ PyObject* PyCameraObject_get_filePath(PyCameraObject*);
+ PyObject* PyCameraObject_set_filePath(PyCameraObject*, PyObject* args);
+ PyObject* PyCameraObject_getPic(PyCameraObject*);
+ PyObject* PyCameraObject_startPicStream(PyCameraObject*, PyObject* args);
+ PyObject* PyCameraObject_finishPicStream(PyCameraObject*);
+ void PyCameraObject_dealloc(PyCameraObject*);
 
 //会调用List轮询各socket
-static PyObject* PyECCPserver_exec(PyModuleObject* module,PyObject** args,PyObject** kwargs);
+ PyObject* PyECCPserver_exec(PyObject * self, PyObject* args, PyObject* kwargs);
 ```
 
 
@@ -280,23 +285,19 @@ int func(const char* data,unsigned short length,Camera_info* camera)
 
 ```C
 typedef struct EventQueue EventQueue;
-typedef struct EventQueue EventQueue;
+typedef struct Node EventNode;
 
-struct EventQueue{
-    eventNode* headNode;
-    eventNode* tailNode;
-    int length;
+struct EventQueue
+{
+    BasicList_Head;
+    Destructor destructors;
 };
 
-struct EventQueue{
-    ECCP_message * msg_data;
-    eventNode* next;
-};
-
-ECCP_message* queue_in_new_message(EventQueue* queue, int length);
+void EventQueue_in(EventQueue* queue, ECCP_message* msg);
 ECCP_message* EventQueue_out(EventQueue* queue);
+void EventQueue_clear(EventQueue* queue);
 
-EventNode* EventNode_alloc(ECCP_message* msg);
+EventQueue* EventQueue_init(void* queue);
 EventNode* EventNode_free(EventNode* n);
 
 void ECCP_set_message_1(EventQueue* queue);
@@ -321,7 +322,7 @@ typedef struct ECCP_message
 
 typedef int (*ECCP_func)(const char* data,unsigned short length,Camera_info* camera);
 
-int ECCP_is_Invalid(ECCP_message* Emsg,int length);
+int ECCP_is_invalid(ECCP_message* Emsg,int length);
 void ECCP_message_exec(ECCP_message*,Camera_info*);
 void vec_ECCP_FUNC(unsigned char func_code,ECCP_func* func);
 ```

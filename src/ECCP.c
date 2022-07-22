@@ -5,7 +5,7 @@
 #include "ECCP.h"
 
 
-int ECCP_is_Invalid(ECCP_message* Emsg,int length)
+int ECCP_is_invalid(ECCP_message* Emsg,int length)
 {
     if(length>=ECCP_buffersz)
         return 7;//E2BIG
