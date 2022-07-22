@@ -44,7 +44,7 @@ static PyObject* PyECCPServer_exec(PyObject* self, PyObject* args, PyObject* kwa
         //这里要取传过来的msg
         for (int times = 0; times < 10; times++)
             if (msg_length = recv_eccp_msg(socket, msg_buffer, IP_buffer))
-                if (!ECCP_is_Invalid(msg_buffer, msg_length))
+                if (!ECCP_is_invalid(msg_buffer, msg_length))
                     if (msg_buffer->func_code == 0x01) {
                         camera = PyCameraObject_private_new(&PyCamera_Type);
                         ECCP_message_exec(msg_buffer, &camera->info);
@@ -64,7 +64,7 @@ static PyObject* PyECCPServer_exec(PyObject* self, PyObject* args, PyObject* kwa
         int timer_over = time(0) > timer;
         PyObject* lAliveCamera = PyDict_Items((PyObject*)listen_dict);
         Py_ssize_t len = PyList_Size(lAliveCamera);
-        //遍历listen_dict查询，删除掉线的camera，然后执行发送函数，添加心跳包
+        //遍历listen_dict查询，删除掉线的camera，然后执行发送函数，添加心跳�?
         for (Py_ssize_t i = 0; i < len; i++)
         {
             PyObject* socket_camera_tuple = PyList_GetItem(lAliveCamera, i);

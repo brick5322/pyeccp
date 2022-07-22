@@ -35,7 +35,7 @@ typedef int (*ECCP_func)(const char* data,unsigned short length,Camera_info* cam
  * @param length 报文实际长度（即UDP包长）
  * @return 成功返回0
  */
-int ECCP_is_Invalid(ECCP_message* Emsg,int length);
+int ECCP_is_invalid(ECCP_message* Emsg,int length);
 
 /**
  * @brief 执行报文内容
